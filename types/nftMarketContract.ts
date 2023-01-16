@@ -57,23 +57,34 @@ export interface ContractCallOverrides {
 export type NftMarketContractEvents =
   | 'Approval'
   | 'ApprovalForAll'
+  | 'Bid'
+  | 'End'
+  | 'Mint'
   | 'NftItemCreated'
   | 'OwnershipTransferred'
   | 'Sale'
-  | 'Transfer';
+  | 'Start'
+  | 'Transfer'
+  | 'Withdraw';
 export interface NftMarketContractEventsContext {
   Approval(...parameters: any): EventFilter;
   ApprovalForAll(...parameters: any): EventFilter;
+  Bid(...parameters: any): EventFilter;
+  End(...parameters: any): EventFilter;
+  Mint(...parameters: any): EventFilter;
   NftItemCreated(...parameters: any): EventFilter;
   OwnershipTransferred(...parameters: any): EventFilter;
   Sale(...parameters: any): EventFilter;
+  Start(...parameters: any): EventFilter;
   Transfer(...parameters: any): EventFilter;
+  Withdraw(...parameters: any): EventFilter;
 }
 export type NftMarketContractMethodNames =
   | 'new'
   | '_minimumFee'
   | 'approve'
   | 'balanceOf'
+  | 'bids'
   | 'bottlePrice'
   | 'excludedList'
   | 'getApproved'
@@ -82,33 +93,45 @@ export type NftMarketContractMethodNames =
   | 'name'
   | 'owner'
   | 'ownerOf'
+  | 'paused'
   | 'renounceOwnership'
   | 'royaltyInfo'
   | 'setApprovalForAll'
   | 'symbol'
   | 'tokenURI'
   | 'transferOwnership'
+  | 'txFeeToken'
   | 'burn'
   | 'mintNFT'
+  | 'addUpdateNFTERC20Price'
   | 'buyNFT'
+  | 'buyNFTWithERC20'
   | 'getTokenExtractionsByYear'
+  | 'getNFTCost'
+  | 'getAllNFTs'
+  | 'getAllNftsOnSale'
+  | 'getOwnedNfts'
+  | 'getNftItem'
+  | 'getNftListedItemsCount'
   | 'orderBottle'
   | 'setListingPrice'
   | 'placeNftOnSale'
   | 'totalSupply'
   | 'tokenByIndex'
   | 'tokenOfOwnerByIndex'
-  | 'getAllNftsOnSale'
-  | 'getOwnedNfts'
   | 'supportsInterface'
-  | 'getNftItem'
-  | 'getNftListedItemsCount'
   | 'tokenURIExists'
   | 'getOwnerNFTAddress'
   | 'setExcluded'
   | 'transferFrom'
   | 'safeTransferFrom'
-  | 'safeTransferFrom';
+  | 'safeTransferFrom'
+  | 'acceptOffer'
+  | 'getBidAddressesByTokenId'
+  | 'makeOffer'
+  | 'withdraw'
+  | 'getNftOffer'
+  | '_removeOffer';
 export interface ApprovalEventEmittedResponse {
   owner: string;
   approved: string;
@@ -118,6 +141,20 @@ export interface ApprovalForAllEventEmittedResponse {
   owner: string;
   operator: string;
   approved: boolean;
+}
+export interface BidEventEmittedResponse {
+  sender: string;
+  amount: BigNumberish;
+}
+export interface EndEventEmittedResponse {
+  highestBidder: string;
+  highestBid: BigNumberish;
+}
+export interface MintEventEmittedResponse {
+  owner: string;
+  tokenId: BigNumberish;
+  value: BigNumberish;
+  tokenURI: string;
 }
 export interface NftItemCreatedEventEmittedResponse {
   tokenId: BigNumberish;
@@ -141,12 +178,20 @@ export interface TransferEventEmittedResponse {
   to: string;
   tokenId: BigNumberish;
 }
+export interface WithdrawEventEmittedResponse {
+  bidder: string;
+  amount: BigNumberish;
+}
 export interface RoyaltyInfoResponse {
   result0: string;
   0: string;
   result1: BigNumber;
   1: BigNumber;
   length: 2;
+}
+export interface MintNFTRequest {
+  paytoken: string;
+  costvalue: BigNumberish;
 }
 export interface NftitemResponse {
   tokenId: BigNumber;
@@ -159,6 +204,18 @@ export interface NftitemResponse {
   3: string;
   isListed: boolean;
   4: boolean;
+}
+export interface OfferResponse {
+  nftId: BigNumber;
+  0: BigNumber;
+  seller: string;
+  1: string;
+  lowerBid: BigNumber;
+  2: BigNumber;
+  highestBid: BigNumber;
+  3: BigNumber;
+  highestBidder: string;
+  4: string;
 }
 export interface NftMarketContract {
   /**
@@ -197,6 +254,17 @@ export interface NftMarketContract {
    */
   balanceOf(
     owner: string,
+    overrides?: ContractCallOverrides
+  ): Promise<BigNumber>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param parameter0 Type: address, Indexed: false
+   */
+  bids(
+    parameter0: string,
     overrides?: ContractCallOverrides
   ): Promise<BigNumber>;
   /**
@@ -275,6 +343,13 @@ export interface NftMarketContract {
   ): Promise<string>;
   /**
    * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  paused(overrides?: ContractCallOverrides): Promise<boolean>;
+  /**
+   * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
@@ -339,6 +414,13 @@ export interface NftMarketContract {
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  txFeeToken(overrides?: ContractCallOverrides): Promise<string>;
+  /**
+   * Payable: false
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
@@ -355,9 +437,26 @@ export interface NftMarketContract {
    * Type: function
    * @param tokenURI Type: string, Indexed: false
    * @param price Type: uint256, Indexed: false
+   * @param tokens Type: tuple[], Indexed: false
    */
   mintNFT(
     tokenURI: string,
+    price: BigNumberish,
+    tokens: MintNFTRequest[],
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param tokenId Type: uint256, Indexed: false
+   * @param token Type: address, Indexed: false
+   * @param price Type: uint256, Indexed: false
+   */
+  addUpdateNFTERC20Price(
+    tokenId: BigNumberish,
+    token: string,
     price: BigNumberish,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
@@ -374,6 +473,19 @@ export interface NftMarketContract {
   ): Promise<ContractTransaction>;
   /**
    * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   * @param _erc20Token Type: address, Indexed: false
+   */
+  buyNFTWithERC20(
+    _tokenId: BigNumberish,
+    _erc20Token: string,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
    * Constant: true
    * StateMutability: view
    * Type: function
@@ -385,6 +497,60 @@ export interface NftMarketContract {
     year: BigNumberish,
     overrides?: ContractCallOverrides
   ): Promise<BigNumber>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param tokenId Type: uint256, Indexed: false
+   * @param _erc20Token Type: address, Indexed: false
+   */
+  getNFTCost(
+    tokenId: BigNumberish,
+    _erc20Token: string,
+    overrides?: ContractCallOverrides
+  ): Promise<BigNumber>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  getAllNFTs(overrides?: ContractCallOverrides): Promise<NftitemResponse[]>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  getAllNftsOnSale(
+    overrides?: ContractCallOverrides
+  ): Promise<NftitemResponse[]>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  getOwnedNfts(overrides?: ContractCallOverrides): Promise<NftitemResponse[]>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param tokenId Type: uint256, Indexed: false
+   */
+  getNftItem(
+    tokenId: BigNumberish,
+    overrides?: ContractCallOverrides
+  ): Promise<NftitemResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  getNftListedItemsCount(overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: true
    * Constant: false
@@ -460,46 +626,12 @@ export interface NftMarketContract {
    * Constant: true
    * StateMutability: view
    * Type: function
-   */
-  getAllNftsOnSale(
-    overrides?: ContractCallOverrides
-  ): Promise<NftitemResponse[]>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
-   */
-  getOwnedNfts(overrides?: ContractCallOverrides): Promise<NftitemResponse[]>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
    * @param interfaceId Type: bytes4, Indexed: false
    */
   supportsInterface(
     interfaceId: Arrayish,
     overrides?: ContractCallOverrides
   ): Promise<boolean>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
-   * @param tokenId Type: uint256, Indexed: false
-   */
-  getNftItem(
-    tokenId: BigNumberish,
-    overrides?: ContractCallOverrides
-  ): Promise<NftitemResponse>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
-   */
-  getNftListedItemsCount(overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -580,6 +712,72 @@ export interface NftMarketContract {
     to: string,
     tokenId: BigNumberish,
     _data: Arrayish,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: true
+   * Constant: false
+   * StateMutability: payable
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   */
+  acceptOffer(
+    _tokenId: BigNumberish,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   */
+  getBidAddressesByTokenId(
+    _tokenId: BigNumberish,
+    overrides?: ContractCallOverrides
+  ): Promise<string[]>;
+  /**
+   * Payable: true
+   * Constant: false
+   * StateMutability: payable
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   */
+  makeOffer(
+    _tokenId: BigNumberish,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: true
+   * Constant: false
+   * StateMutability: payable
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   */
+  withdraw(
+    _tokenId: BigNumberish,
+    overrides?: ContractTransactionOverrides
+  ): Promise<ContractTransaction>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   */
+  getNftOffer(
+    _tokenId: BigNumberish,
+    overrides?: ContractCallOverrides
+  ): Promise<OfferResponse>;
+  /**
+   * Payable: false
+   * Constant: false
+   * StateMutability: nonpayable
+   * Type: function
+   * @param _tokenId Type: uint256, Indexed: false
+   */
+  _removeOffer(
+    _tokenId: BigNumberish,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
 }

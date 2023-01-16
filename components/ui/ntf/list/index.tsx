@@ -3,6 +3,8 @@ import NftItem from "../item"
 
 const NftList: React.FC = () => {
   const { nfts } = useListedNfts()
+
+
     return (
       <>
       <p className="text-xl mt-12 font-semibold text-gray-900">By CaskChain</p>
@@ -10,7 +12,7 @@ const NftList: React.FC = () => {
       {
         nfts.data?.filter(nft => nft.creator === nft.owner)?.map(nft => (
           <div key={nft.meta.image} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
-            <NftItem item={nft} buyNft={nfts.buyNft} buyNftWithEUR={nfts.buyNftWithEUR} burnNft={nfts.burnNft} />
+            <NftItem showOwner={false} withTransactions={true} item={nft} buyNft={nfts.buyNft} buyNftWithEUR={nfts.buyNftWithEUR} buyNftWithERC20={nfts.buyNftWithERC20} burnNft={nfts.burnNft} />
         </div>
         ))
       }    
@@ -20,7 +22,7 @@ const NftList: React.FC = () => {
       {
         nfts.data?.filter(nft => nft.creator !== nft.owner)?.map(nft => (
           <div key={nft.meta.image} className="flex flex-col rounded-lg shadow-lg overflow-hidden">
-            <NftItem item={nft} buyNft={nfts.buyNft}  burnNft={nfts.burnNft} />
+            <NftItem showOwner={false} withTransactions={true} item={nft} buyNft={nfts.buyNft}  burnNft={nfts.burnNft} buyNftWithEUR={nfts.buyNftWithEUR} buyNftWithERC20={nfts.buyNftWithERC20} />
         </div>
         ))
       }    

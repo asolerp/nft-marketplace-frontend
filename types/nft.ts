@@ -21,6 +21,11 @@ export type NftCore = {
     isListed: boolean;
 } 
 
+export type ERC20Price = {
+    address: string;
+    price: number;
+}
+
 export type TransactionHistory = {
     id: string;
     from: string;
@@ -31,8 +36,11 @@ export type TransactionHistory = {
 }
 
 export type Nft = {
-    meta: NftMeta,
-    transactions?: TransactionHistory[]
+    meta: NftMeta;
+    erc20Prices?: ERC20Price[];
+    transactions?: TransactionHistory[];
+    bidders?: string[];
+    offer?: any;
 } & NftCore
 
 export type FileReq = {

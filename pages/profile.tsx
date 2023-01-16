@@ -3,21 +3,18 @@
 import type { NextPage } from 'next'
 import { BaseLayout } from '@ui'
 
+import { Nft, PinataRes } from '@_types/nft'
+import { useAccount, useOwnedNfts } from '@hooks/web3'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import { useWeb3 } from '@providers/web3'
+import { ethers } from 'ethers'
+import { getSignedData } from './api/utils'
+import TransactionsHistory from '@ui/ntf/transactionsHistory'
+import withAuth from 'components/hoc/withAuth'
 
-import { Nft, PinataRes } from '@_types/nft';
-import { useOwnedNfts } from '@hooks/web3';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import { useWeb3 } from '@providers/web3';
-import { ethers } from 'ethers';
-import { getSignedData } from './api/utils';
-import TransactionsHistory from '@ui/ntf/transactionsHistory';
-
-
-const tabs = [
-  { name: 'Your Collection', href: '#', current: true },
-]
+const tabs = [{ name: 'Your Collection', href: '#', current: true }]
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -26,50 +23,65 @@ function classNames(...classes: string[]) {
 const bottlePrice = 0.013
 
 const Profile: NextPage = () => {
-
   const { nfts } = useOwnedNfts()
-  const  { ethereum, contract } = useWeb3();
+  const { account } = useAccount()
+
+  const { provider, contract } = useWeb3()
   const [activeNft, setActiveNft] = useState<Nft>()
 
   useEffect(() => {
     if (nfts.data && nfts.data.length > 0) {
-      setActiveNft(nfts.data[0]);
-    } 
-  },[nfts.data])
+      setActiveNft(nfts.data[0])
+    } else {
+      setActiveNft(undefined)
+    }
+  }, [nfts.data])
 
-  const orderBottle = async (numberOfBottles: number, tokenId: number, tokenURI: string) => {
+  const activeOffer = activeNft?.offer?.highestBidder !== account.data
+
+  const orderBottle = async (
+    numberOfBottles: number,
+    tokenId: number,
+    tokenURI: string
+  ) => {
     try {
-      const { account, signedData } = await getSignedData(ethereum)
+      const { address, signature } = await getSignedData(
+        provider,
+        account.data as string
+      )
 
-      const res = await axios.post("/order-bottle", {
-        address: account,
-        signature: signedData,
-        extractions: numberOfBottles,
-        tokenURI
-      }, { withCredentials: true })
+      const res = await axios.post(
+        '/order-bottle',
+        {
+          address,
+          signature,
+          extractions: numberOfBottles,
+          tokenURI,
+        },
+        { withCredentials: true }
+      )
 
-      const data = res.data as PinataRes;
+      const data = res.data as PinataRes
 
       const newTokenURI = `${process.env.NEXT_PUBLIC_PINATA_DOMAIN}/ipfs/${data.IpfsHash}`
 
       const tx = await contract?.orderBottle(
         numberOfBottles,
         tokenId,
-        newTokenURI, {
-          value: ethers.utils.parseEther(String(bottlePrice * numberOfBottles))
+        newTokenURI,
+        {
+          value: ethers.utils.parseEther(String(bottlePrice * numberOfBottles)),
         }
-      );
+      )
 
-      await toast.promise(
-        tx!.wait(), {
-          pending: "Uploading metadata",
-          success: "Metadata uploaded",
-          error: "Metadata upload error"
-        }
-      );
-
-    } catch(e: any) {
-      console.error(e.message);
+      await toast.promise(tx!.wait(), {
+        pending: 'Uploading metadata',
+        success: 'Metadata uploaded',
+        error: 'Metadata upload error',
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+      console.error(e.message)
     }
   }
 
@@ -81,12 +93,17 @@ const Profile: NextPage = () => {
             <main className="flex-1 overflow-y-auto">
               <div className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex">
-                  <h1 className="flex-1 text-2xl font-bold text-gray-900">Your NFTs</h1>
+                  <h1 className="flex-1 text-2xl font-bold text-gray-900">
+                    Your NFTs
+                  </h1>
                 </div>
                 <div className="mt-3 sm:mt-2">
                   <div className="hidden sm:block">
                     <div className="flex items-center border-b border-gray-200">
-                      <nav className="flex-1 -mb-px flex space-x-6 xl:space-x-8" aria-label="Tabs">
+                      <nav
+                        className="flex-1 -mb-px flex space-x-6 xl:space-x-8"
+                        aria-label="Tabs"
+                      >
                         {tabs.map((tab) => (
                           <a
                             key={tab.name}
@@ -107,7 +124,10 @@ const Profile: NextPage = () => {
                   </div>
                 </div>
 
-                <section className="mt-8 pb-16" aria-labelledby="gallery-heading">
+                <section
+                  className="mt-8 pb-16"
+                  aria-labelledby="gallery-heading"
+                >
                   <ul
                     role="list"
                     className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
@@ -116,7 +136,8 @@ const Profile: NextPage = () => {
                       <li
                         key={nft.meta.name}
                         onClick={() => setActiveNft(nft)}
-                        className="relative">
+                        className="relative"
+                      >
                         <div
                           className={classNames(
                             nft.tokenId === activeNft?.tokenId
@@ -129,12 +150,19 @@ const Profile: NextPage = () => {
                             src={nft.meta.image}
                             alt=""
                             className={classNames(
-                              nft.tokenId === activeNft?.tokenId ? '' : 'group-hover:opacity-75',
+                              nft.tokenId === activeNft?.tokenId
+                                ? ''
+                                : 'group-hover:opacity-75',
                               'object-cover pointer-events-none h-40 w-full'
                             )}
                           />
-                          <button type="button" className="absolute inset-0 focus:outline-none">
-                            <span className="sr-only">View details for {nft.meta.name}</span>
+                          <button
+                            type="button"
+                            className="absolute inset-0 focus:outline-none"
+                          >
+                            <span className="sr-only">
+                              View details for {nft.meta.name}
+                            </span>
                           </button>
                         </div>
                         <p className="mt-2 block text-sm font-medium text-gray-900 truncate pointer-events-none">
@@ -145,79 +173,104 @@ const Profile: NextPage = () => {
                   </ul>
                 </section>
               </div>
-              {
-                activeNft && (
-                  <div>
-                    <TransactionsHistory transactions={activeNft?.transactions} />
-                  </div>
-                )
-              }
+              {activeNft && (
+                <div>
+                  <TransactionsHistory transactions={activeNft?.transactions} />
+                </div>
+              )}
             </main>
 
             {/* Details sidebar */}
             <aside className="hidden w-96 bg-white p-8 border-l border-gray-200 overflow-y-auto lg:block">
-            { activeNft &&
-              <div>
-                <div className="pb-16 space-y-6">
-                  <div>
-                    <div className="block w-full aspect-w-10 aspect-h-7 rounded-lg overflow-hidden">
-                      <img src={activeNft.meta.image} alt="" className="object-cover" />
-                    </div>
-                    <div className="mt-4 flex items-start justify-between">
-                      <div>
-                        <h2 className="text-lg font-medium text-gray-900">
-                          <span className="sr-only">Details for </span>
-                          {activeNft.meta.name}
-                        </h2>
-                        <p className="text-sm font-medium text-gray-500">{activeNft.meta.description}</p>
+              {activeNft && (
+                <div>
+                  <div className="pb-16 space-y-6">
+                    <div>
+                      <div className="block w-full aspect-w-10 aspect-h-7 rounded-lg overflow-hidden">
+                        <img
+                          src={activeNft.meta.image}
+                          alt=""
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="mt-4 flex items-start justify-between">
+                        <div>
+                          <h2 className="text-lg font-medium text-gray-900">
+                            <span className="sr-only">Details for </span>
+                            {activeNft.meta.name}
+                          </h2>
+                          <p className="text-sm font-medium text-gray-500">
+                            {activeNft.meta.description}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-900">Information</h3>
-                    <dl className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
-                      {activeNft.meta.attributes.map((attr) => (
-                        <div key={attr.trait_type} className="py-3 flex justify-between text-sm font-medium">
-                          <dt className="text-gray-500">{attr.trait_type}: </dt>
-                          <dd className="text-gray-900 text-right">{attr.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
-                  </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">Information</h3>
+                      <dl className="mt-2 border-t border-b border-gray-200 divide-y divide-gray-200">
+                        {activeNft.meta.attributes.map((attr) => (
+                          <div
+                            key={attr.trait_type}
+                            className="py-3 flex justify-between text-sm font-medium"
+                          >
+                            <dt className="text-gray-500">
+                              {attr.trait_type}:{' '}
+                            </dt>
+                            <dd className="text-gray-900 text-right">
+                              {attr.value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
 
-                  <div className="flex">
+                    <div className="flex">
+                      <button
+                        type="button"
+                        className="flex-1 bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Download Image
+                      </button>
+                      <button
+                        disabled={activeNft.isListed}
+                        onClick={() => {
+                          nfts.listNft(activeNft.tokenId, activeNft.price)
+                        }}
+                        type="button"
+                        className="disabled:text-gray-400 disabled:cursor-not-allowed flex-1 ml-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        {activeNft.isListed ? 'Nft is listed' : 'List Nft'}
+                      </button>
+                    </div>
                     <button
-                      type="button"
-                      className="flex-1 bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Download Image
-                    </button>
-                    <button
-                      disabled={activeNft.isListed}
-                      onClick={() => {
-                        nfts.listNft(
-                          activeNft.tokenId,
-                          activeNft.price
-                        )
-                      }}
-                      type="button"
-                      className="disabled:text-gray-400 disabled:cursor-not-allowed flex-1 ml-3 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      {
-                        activeNft.isListed ? 'Nft is listed'  : 'List Nft'
-                      } 
-                    </button>
-                  </div>
-                  <button                 
-                      onClick={() => orderBottle(2, activeNft.tokenId, activeNft.tokenURI)}
+                      onClick={() =>
+                        orderBottle(2, activeNft.tokenId, activeNft.tokenURI)
+                      }
                       type="button"
                       className="disabled:text-gray-400 disabled:cursor-not-allowed flex-1 bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
                       Order two bottles
                     </button>
-                </div>             
-              </div>
-            }
+                  </div>
+                  {activeOffer && activeNft && (
+                    <div>
+                      <p className="mb-1">You have an offer!</p>
+                      <p className="mb-2">
+                        Offer:{' '}
+                        {ethers.utils.formatEther(activeNft?.offer?.highestBid)}{' '}
+                        ETH
+                      </p>
+                      <button
+                        onClick={() => nfts.acceptOffer(activeNft.tokenId)}
+                        type="button"
+                        className="flex-1 bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      >
+                        Accept offer
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </aside>
           </div>
         </div>
@@ -226,4 +279,4 @@ const Profile: NextPage = () => {
   )
 }
 
-export default Profile
+export default withAuth(Profile)

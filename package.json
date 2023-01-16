@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "genContractType": "abi-types-generator './public/contracts/NftMarket.json' --output='./types' --name=nftMarketContract --provider=ethers_v5"
+    "genContractType": "abi-types-generator './public/contracts/NftMarket.json' --output='./types' --name=nftMarketContract --provider=ethers_v5",
+    "genUSDTContractType": "abi-types-generator './public/contracts/MockUSDT.json' --output='./types' --name=mockUSDTContract --provider=ethers_v5",
+    "genNftOffersContractType": "abi-types-generator './public/contracts/NftOffers.json' --output='./types' --name=nftOffersContract --provider=ethers_v5"
   },
   "proxy": "http://localhost:4000",
   "dependencies": {
@@ -31,6 +33,7 @@
     "next-iron-session": "^4.2.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-modal": "^3.16.1",
     "react-toastify": "^9.1.1",
     "swr": "^2.0.0",
     "uuid": "^9.0.0"
@@ -41,11 +44,14 @@
     "@types/react": "17.0.43",
     "@types/react-dom": "17.0.14",
     "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.48.1",
     "autoprefixer": "^10.4.13",
     "eslint": "8.12.0",
     "eslint-config-next": "12.1.4",
+    "eslint-config-prettier": "^8.6.0",
     "ethereum-abi-types-generator": "^1.3.2",
     "postcss": "^8.4.20",
+    "prettier": "^2.8.2",
     "tailwindcss": "^3.2.4",
     "truffle-plugin-verify": "^0.6.1",
     "typescript": "4.9.4"

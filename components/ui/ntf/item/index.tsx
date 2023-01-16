@@ -4,15 +4,26 @@ import { Nft, NftMeta } from "../../../../types/nft";
 
 type NftItemProps = {
     item: Nft,
-    burnNft: (tokenId: number) => Promise<void>,
-    buyNftWithEUR: (tokenId: number, address: string) => Promise<void>;
-    buyNft: (tokenId: number, price: number) => Promise<void>
+    burnNft?: (tokenId: number) => Promise<void>,
+    buyNftWithEUR?: (tokenId: number, address: string) => Promise<void>;
+    buyNftWithERC20?: (tokenId: number, erc20Token: string, price: number) => Promise<void>;
+    buyNft?: (tokenId: number, price: number) => Promise<void>;
+    makeOffer?: (tokenId: number, offer: string) => Promise<void>;
+    withdraw?: (tokenId: number) => Promise<void>;
+    withTransactions?: boolean;
+    showOwner?: boolean;
 }
 
-const NftItem: React.FC<NftItemProps> = ({ item, buyNft, burnNft, buyNftWithEUR }) => {
+const ERC20TokenNames: any = {
+    [process.env.NEXT_PUBLIC_USDT_TOKEN as string]: "USDT"
+}
+
+const NftItem: React.FC<NftItemProps> = ({ item, withdraw = () => {}, makeOffer = () => {}, buyNft = () => {}, burnNft = () => {}, buyNftWithEUR = () => {}, buyNftWithERC20 = () => {}, showOwner = false, withTransactions = true }) => {
 
     const { account } = useAccount()
     const [address, setAddress] = useState('')
+    const [offer, setOffer] = useState('')
+
 
     return (
         <>
@@ -30,6 +41,14 @@ const NftItem: React.FC<NftItemProps> = ({ item, buyNft, burnNft, buyNftWithEUR 
             </div>
             <div className="flex-1 bg-white p-6 flex flex-col justify-between">
             <div className="flex-1">
+                {
+                showOwner && (
+                    <div className="flex flex-row justify-between">
+                        <p className=" text-indigo-600 mb-5">Owner</p>
+                        <p>{`0x${item.owner[2]}${item.owner[3]}${item.owner[4]}....${item.owner.slice(-4)}`}</p>
+                    </div>
+                )
+                }
                 <p className="text-sm font-medium text-indigo-600">
                 Cask NFT
                 </p>
@@ -45,7 +64,7 @@ const NftItem: React.FC<NftItemProps> = ({ item, buyNft, burnNft, buyNftWithEUR 
                     <dd className="order-1 text-xl font-extrabold text-indigo-600">
                     <div className="flex justify-center items-center">
                         {item.price}
-                        <img alt="ETH_logo" className="h-6" src="/eth_logo.png"/>
+                        $
                     </div>
                     </dd>
                 </div>
@@ -59,46 +78,98 @@ const NftItem: React.FC<NftItemProps> = ({ item, buyNft, burnNft, buyNftWithEUR 
                   }
                 </dl>
             </div>
-            <div>
-                <button
-                onClick={() => buyNft(item.tokenId, item.price)}
-                type="button"
-                className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                Buy with ETH
-                </button>
+            <div className="flex-row mt-6">
+                <>
                 {
-                    item.creator === item.owner && (
-                        <div className="flex-row mt-6">
-                            <input onChange={(e) => setAddress(e.target.value)} type="text" id="first_name" className="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ETH Adress" required></input>
-                            <button
-                            onClick={() => buyNftWithEUR(item.tokenId, address)}
-                            type="button"
-                            className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 mb-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Buy with EUR
-                            </button>
-                        </div>
+                    item.owner !== account.data && (
+                        <>
+                        {
+                            item?.bidders?.some(bid => bid === account.data) ? (
+                                <button
+                                onClick={() => withdraw(item.tokenId)}
+                                type="button"
+                                className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 mb-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-500 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Withdraw
+                                </button>
+                            ) : (
+                            <>
+                                <input onChange={(e) => setOffer(e.target.value)} type="text" id="first_name" className="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ETH offer" required></input>
+                                <button
+                                onClick={async () => await makeOffer(item.tokenId, offer)}
+                                type="button"
+                                className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 mb-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Make Offer
+                                </button>
+                            </>
+                            )
+                        }
+                        </>
                     )
                 }
-                <button
-                type="button"
-                className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                Preview
-                </button>
-                {
-                  item.creator === account.data && (
-                    <button
-                      onClick={() => burnNft(item.tokenId)}
-                      type="button"
-                      className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-700 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Burn NFT with ETH
-                    </button>
-                  )
-                }
+                </>       
             </div>
+            {
+                withTransactions && (
+                    <div>
+                        <div className="flex-row">
+                            <button
+                            onClick={() => buyNft(item.tokenId, item.price)}
+                            type="button"
+                            className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                            Buy with ETH
+                            </button>
+                            {
+                                item.erc20Prices?.map(erc20 => {
+                                    return (
+                                        <button
+                                        key={erc20.address}
+                                        onClick={() => buyNftWithERC20(item.tokenId, erc20.address, erc20.price)}
+                                        type="button"
+                                        className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        >
+                                        Buy with { ERC20TokenNames[erc20.address] } {erc20.price}
+                                        </button>
+                                    )
+                                })
+                            }
+                        </div>
+                        {
+                            item.creator === item.owner && (
+                                <div className="flex-row mt-6">
+                                    <input onChange={(e) => setAddress(e.target.value)} type="text" id="first_name" className="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="ETH Adress" required></input>
+                                    <button
+                                    onClick={() => buyNftWithEUR(item.tokenId, address)}
+                                    type="button"
+                                    className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 mb-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                    >
+                                        Buy with EUR
+                                    </button>
+                                </div>
+                            )
+                        }
+                        <button
+                        type="button"
+                        className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                        Preview
+                        </button>
+                        {
+                        item.creator === account.data && (
+                            <button
+                            onClick={() => burnNft(item.tokenId)}
+                            type="button"
+                            className="disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none disabled:cursor-not-allowed mr-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-700 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            >
+                            Burn NFT with ETH
+                            </button>
+                        )
+                        }
+                    </div>
+                )
+            }
             </div>
         </>
     )

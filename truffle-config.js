@@ -75,7 +75,7 @@ module.exports = {
     //
     development: {
      host: "127.0.0.1",     // Localhost (default: none)
-     port: 7545,            // Standard Ethereum port (default: none)
+     port: 8545,            // Standard Ethereum port (default: none)
      network_id: "*",       // Any network (default: none)
     },
     //
@@ -92,15 +92,20 @@ module.exports = {
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
     goerli: {
-      provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`, 0, 5),
+      provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
       from: "0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988",
-      gas: "4500000",
-      gasPrice: "10000000000",
+      gas: 4465030,
+      gasPrice: "70000000000",
       network_id: 5,       // Goerli's id
-      confirmations: 2,    // # of confirmations to wait between deployments. (default: 0)
-      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
+    mumbai: {
+      provider: () => new HDWalletProvider(MNEMONIC, `https://warmhearted-alpha-wish.matic-testnet.discover.quiknode.pro/e691cd069dcd0cbe40b3b07d635227bb68835f28/`),
+      from: "0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988",
+      network_id: 80001,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    }
     //
     // Useful for private networks
     // private: {
