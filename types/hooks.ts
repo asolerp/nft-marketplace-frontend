@@ -6,6 +6,8 @@ import { NftOffersContract } from './nftOffersContract'
 
 export type Web3Dependencies = {
   erc20Contracts?: any
+  vaultVendor?: any
+  vaultFactory?: any
   nftOffers?: NftOffersContract
   provider: providers.Web3Provider
   contract: NftMarketContract

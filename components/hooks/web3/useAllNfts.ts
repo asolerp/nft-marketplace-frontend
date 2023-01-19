@@ -13,6 +13,7 @@ const USDTAddress = process.env.NEXT_PUBLIC_USDT_TOKEN as string
 type UseAllNftsResponse = {
   withdraw: (tokenId: number) => Promise<void>
   makeOffer: (tokenId: number, offer: string) => Promise<void>
+  buyShares: (tokenId: number, shares: number) => Promise<void>
 }
 
 type AllNftsHookFactory = CryptoHookFactory<Nft[], UseAllNftsResponse>
@@ -40,7 +41,15 @@ export const hookFactory: AllNftsHookFactory =
           const metaResponse = await fetch(tokenURI)
           const meta = await metaResponse.json()
 
-          console.log(bidders)
+          const totalShares =
+            item.isLocked &&
+            (await contract?.getFractionalizedSharesByTokenId(item.tokenId))
+
+          const shares =
+            item.isLocked &&
+            (await contract?.getAvailableFractionalizedSharesByTokenId(
+              item.tokenId
+            ))
 
           nfts.push({
             price: parseFloat(ethers.utils.formatEther(item.price)),
@@ -48,8 +57,11 @@ export const hookFactory: AllNftsHookFactory =
             tokenId: item.tokenId.toNumber(),
             creator: item.creator,
             owner: item.owner,
+            isLocked: item.isLocked,
             isListed: item.isListed,
             offer,
+            shares: shares.toNumber(),
+            totalShares: totalShares.toNumber(),
             bidders,
             erc20Prices: [
               {
@@ -66,6 +78,27 @@ export const hookFactory: AllNftsHookFactory =
     )
 
     const _contract = contract
+
+    // SHARES
+
+    const buyShares = useCallback(
+      async (_tokenId: number, _shares: number, _price: number) => {
+        const parseSharesTotalPrice = ethers.utils
+          .parseEther((_shares * _price).toString())
+          .toString()
+
+        console.log(parseSharesTotalPrice)
+        const result = await _contract?.buyFractionalShares(_tokenId, _shares, {
+          value: parseSharesTotalPrice,
+        })
+        await toast.promise(result!.wait(), {
+          pending: 'Processing transaction',
+          success: 'You have bought shares!',
+          error: 'Processing error',
+        })
+      },
+      [_contract]
+    )
 
     const makeOffer = useCallback(
       async (_tokenId: number, offer: string) => {
@@ -102,6 +135,7 @@ export const hookFactory: AllNftsHookFactory =
       ...swr,
       withdraw,
       makeOffer,
+      buyShares,
       data: data || [],
     }
   }

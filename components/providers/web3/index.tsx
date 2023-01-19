@@ -49,10 +49,15 @@ const Web3Provider: React.FC<Props> = ({ children }) => {
         )
         const contract = await loadContract('NftMarket', provider)
         const usdtERC20 = await loadContract('MockUSDT', provider)
+        const VaultVendor = await loadContract('VaultVendor', provider)
+        const VaultFactory = await loadContract('VaultFactory', provider)
+
         const signer = provider.getSigner()
 
         const sigendUSDTErc20Contract = usdtERC20.connect(signer)
         const signedContract = contract.connect(signer)
+        const signedVaultVendor = VaultVendor.connect(signer)
+        const signedVaultFactory = VaultFactory.connect(signer)
 
         setGlobalListeners(window.ethereum)
         setWeb3Api(
@@ -60,6 +65,8 @@ const Web3Provider: React.FC<Props> = ({ children }) => {
             ethereum: window.ethereum,
             provider,
             erc20Contracts: { [usdtERC20.address]: sigendUSDTErc20Contract },
+            vaultVendor: signedVaultVendor as any,
+            vaultFactory: signedVaultFactory as any,
             contract: signedContract as unknown as NftMarketContract,
             isLoading: false,
           })

@@ -25,6 +25,7 @@ const NFTCaskWorld: NextPage = () => {
               <NftItem
                 showOwner
                 item={nft}
+                buyShares={nfts.buyShares}
                 withdraw={nfts.withdraw}
                 makeOffer={nfts.makeOffer}
                 withTransactions={false}

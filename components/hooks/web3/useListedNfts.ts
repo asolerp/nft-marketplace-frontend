@@ -30,6 +30,8 @@ export const hookFactory: ListedNftsHookFactory =
       async () => {
         const coreNfts = await contract!.getAllNftsOnSale()
 
+        console.log('CORE', coreNfts)
+
         const nfts = [] as Nft[]
         for (let i = 0; i < coreNfts.length; i++) {
           const item = coreNfts[i]
@@ -48,6 +50,7 @@ export const hookFactory: ListedNftsHookFactory =
             tokenId: item.tokenId.toNumber(),
             creator: item.creator,
             owner: item.owner,
+            isLocked: item.isLocked,
             isListed: item.isListed,
             erc20Prices: [
               {
