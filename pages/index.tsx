@@ -4,6 +4,7 @@ import type { NextPage } from 'next'
 import { BaseLayout, NftList } from '@ui'
 import { useNetwork } from '@hooks/web3'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
+import FractionalizedNftList from '@ui/ntf/lists/fractionalizedList'
 
 const Home: NextPage = () => {
   const { network } = useNetwork()
@@ -42,7 +43,10 @@ const Home: NextPage = () => {
               </p>
             </div>
             {network.isConnectedToNetwork ? (
-              <NftList />
+              <div>
+                {/* <FractionalizedNftList /> */}
+                <NftList />
+              </div>
             ) : (
               <div className="rounded-md bg-yellow-50 p-4 mt-10">
                 <div className="flex">

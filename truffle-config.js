@@ -1,11 +1,11 @@
-const dotenv = require("dotenv")
+const dotenv = require('dotenv')
 
 const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_END}` : '.env'
 dotenv.config({ path: envFile })
 
-const { MNEMONIC, PROJECT_ID } = process.env;
+const { MNEMONIC, PROJECT_ID } = process.env
 
-const HDWalletProvider = require("@truffle/hdwallet-provider");
+const HDWalletProvider = require('@truffle/hdwallet-provider')
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -55,6 +55,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 // const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 module.exports = {
+  plugins: ['truffle-contract-size'],
   /**
    * Networks define how you connect to your ethereum client and let you set the
    * defaults web3 uses to send transactions. If you don't specify one truffle
@@ -65,7 +66,7 @@ module.exports = {
    * $ truffle test --network <network-name>
    */
 
-  contracts_build_directory: "./public/contracts",
+  contracts_build_directory: './public/contracts',
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
@@ -74,9 +75,9 @@ module.exports = {
     // options below to some value.
     //
     development: {
-     host: "127.0.0.1",     // Localhost (default: none)
-     port: 8545,            // Standard Ethereum port (default: none)
-     network_id: "*",       // Any network (default: none)
+      host: '127.0.0.1', // Localhost (default: none)
+      port: 8545, // Standard Ethereum port (default: none)
+      network_id: '*', // Any network (default: none)
     },
     //
     // An additional network, but with some advanced options…
@@ -92,20 +93,30 @@ module.exports = {
     // Useful for deploying to a public network.
     // Note: It's important to wrap the provider as a function to ensure truffle uses a new provider every time.
     goerli: {
-      provider: () => new HDWalletProvider(MNEMONIC, `https://goerli.infura.io/v3/${PROJECT_ID}`),
-      from: "0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988",
+      provider: () =>
+        new HDWalletProvider(
+          MNEMONIC,
+          `https://goerli.infura.io/v3/${PROJECT_ID}`
+        ),
+      from: '0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988',
       gas: 4465030,
-      gasPrice: "70000000000",
-      network_id: 5,       // Goerli's id
+      gasPrice: '70000000000',
+      network_id: 5, // Goerli's id
     },
     mumbai: {
-      provider: () => new HDWalletProvider(MNEMONIC, `https://warmhearted-alpha-wish.matic-testnet.discover.quiknode.pro/e691cd069dcd0cbe40b3b07d635227bb68835f28/`),
-      from: "0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988",
+      provider: () =>
+        new HDWalletProvider(
+          MNEMONIC,
+          `https://warmhearted-alpha-wish.matic-testnet.discover.quiknode.pro/e691cd069dcd0cbe40b3b07d635227bb68835f28/`
+        ),
+      from: '0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988',
       network_id: 80001,
       confirmations: 2,
       timeoutBlocks: 200,
-      skipDryRun: true
-    }
+      skipDryRun: true,
+      pollingInterval: 1800000,
+      disableConfirmationListener: true,
+    },
     //
     // Useful for private networks
     // private: {
@@ -114,7 +125,6 @@ module.exports = {
     //   production: true    // Treats this network as if it was a public net. (default: false)
     // }
   },
-  
 
   // Set default mocha options here, use special reporters, etc.
   mocha: {
@@ -124,17 +134,16 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.17", // Fetch exact version from solc-bin (default: truffle's version)
+      version: '0.8.17', // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
-      settings: {          // See the solidity docs for advice about optimization and evmVersion
-       optimizer: {
-         enabled: true,
-         runs: 200
-       },
-      //  evmVersion: "byzantium"
-      }
-    }
-  }
-
-
-};
+      settings: {
+        // See the solidity docs for advice about optimization and evmVersion
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+        //  evmVersion: "byzantium"
+      },
+    },
+  },
+}

@@ -1,6 +1,6 @@
-import Link from "next/link"
-import React, { ReactElement } from "react"
-import { useRouter } from "next/router"
+import Link from 'next/link'
+import React, { ReactElement } from 'react'
+import { useRouter } from 'next/router'
 
 type LinkProps = {
   href: string
@@ -8,24 +8,18 @@ type LinkProps = {
   activeclass: string
 }
 
-const ActiveLink: React.FC<LinkProps> = ({children, ...props}) => {
+const ActiveLink: React.FC<LinkProps> = ({ children, ...props }) => {
   const { pathname } = useRouter()
-  let className = children!.props.className || ""
-  let _defaultClass = `${className} text-gray-100`
+  let className = children!.props.className || ''
+  const _defaultClass = `${className} text-gray-100`
 
   if (pathname === props.href) {
     className = `${className} text-indigo-400 ${props.activeclass}`
   } else {
-    className = _defaultClass;
+    className = _defaultClass
   }
 
-  return (
-    <Link {...props}>
-      {
-        React.cloneElement(children, {className})
-      }
-    </Link>
-  )
+  return <Link {...props}>{React.cloneElement(children, { className })}</Link>
 }
 
-export default ActiveLink;
+export default ActiveLink

@@ -2,18 +2,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CryptoHookFactory } from '@_types/hooks'
 import { Nft } from '@_types/nft'
-import { ethers } from 'ethers'
-import { useCallback } from 'react'
-import { toast } from 'react-toastify'
+import axios from 'axios'
 
 import useSWR from 'swr'
 
-const USDTAddress = process.env.NEXT_PUBLIC_USDT_TOKEN as string
-
 type UseAllNftsResponse = {
-  withdraw: (tokenId: number) => Promise<void>
-  makeOffer: (tokenId: number, offer: string) => Promise<void>
-  buyShares: (tokenId: number, shares: number) => Promise<void>
+  // withdraw: (tokenId: number) => Promise<void>
+  // makeOffer: (tokenId: number, offer: string) => Promise<void>
+  // buyShares: (tokenId: number, shares: number) => Promise<void>
 }
 
 type AllNftsHookFactory = CryptoHookFactory<Nft[], UseAllNftsResponse>
@@ -21,121 +17,15 @@ type AllNftsHookFactory = CryptoHookFactory<Nft[], UseAllNftsResponse>
 export type UseAllNftsHook = ReturnType<AllNftsHookFactory>
 
 export const hookFactory: AllNftsHookFactory =
-  ({ contract }) =>
+  ({}) =>
   () => {
-    const { data, ...swr } = useSWR(
-      contract ? 'web3/useAllNfts' : null,
-      async () => {
-        const coreNfts: any = await contract!.getAllNFTs()
-        const nfts = [] as Nft[]
-        for (let i = 0; i < coreNfts.length; i++) {
-          const item = coreNfts[i]
-
-          const offer = await contract?.getNftOffer(item.tokenId)
-          const tokenURI = await contract!.tokenURI(item.tokenId)
-          const usdtPrice = await contract!.getNFTCost(
-            item.tokenId,
-            USDTAddress
-          )
-          const bidders = await contract?.getBidAddressesByTokenId(item.tokenId)
-          const metaResponse = await fetch(tokenURI)
-          const meta = await metaResponse.json()
-
-          const totalShares =
-            item.isLocked &&
-            (await contract?.getFractionalizedSharesByTokenId(item.tokenId))
-
-          const shares =
-            item.isLocked &&
-            (await contract?.getAvailableFractionalizedSharesByTokenId(
-              item.tokenId
-            ))
-
-          nfts.push({
-            price: parseFloat(ethers.utils.formatEther(item.price)),
-            tokenURI,
-            tokenId: item.tokenId.toNumber(),
-            creator: item.creator,
-            owner: item.owner,
-            isLocked: item.isLocked,
-            isListed: item.isListed,
-            offer,
-            shares: shares.toNumber(),
-            totalShares: totalShares.toNumber(),
-            bidders,
-            erc20Prices: [
-              {
-                address: USDTAddress,
-                price: parseFloat(ethers.utils.formatEther(usdtPrice)),
-              },
-            ],
-            meta,
-          })
-        }
-
-        return nfts
-      }
-    )
-
-    const _contract = contract
-
-    // SHARES
-
-    const buyShares = useCallback(
-      async (_tokenId: number, _shares: number, _price: number) => {
-        const parseSharesTotalPrice = ethers.utils
-          .parseEther((_shares * _price).toString())
-          .toString()
-
-        console.log(parseSharesTotalPrice)
-        const result = await _contract?.buyFractionalShares(_tokenId, _shares, {
-          value: parseSharesTotalPrice,
-        })
-        await toast.promise(result!.wait(), {
-          pending: 'Processing transaction',
-          success: 'You have bought shares!',
-          error: 'Processing error',
-        })
-      },
-      [_contract]
-    )
-
-    const makeOffer = useCallback(
-      async (_tokenId: number, offer: string) => {
-        const parsedOffer = ethers.utils.parseEther(offer).toString()
-        const result = await _contract?.makeOffer(_tokenId, {
-          value: parsedOffer,
-        })
-        await toast.promise(result!.wait(), {
-          pending: 'Processing transaction',
-          success: 'You have place a bid!',
-          error: {
-            render({ data }) {
-              return `${data}`
-            },
-          },
-        })
-      },
-      [_contract]
-    )
-
-    const withdraw = useCallback(
-      async (_tokenId: number) => {
-        const result = await _contract?.withdraw(_tokenId)
-        await toast.promise(result!.wait(), {
-          pending: 'Processing transaction',
-          success: 'The withdraw was',
-          error: 'Processing error',
-        })
-      },
-      [_contract]
-    )
+    const { data, ...swr } = useSWR('web3/useAllNfts', async () => {
+      const nfts: any = await axios.get('/api/casks')
+      return nfts.data
+    })
 
     return {
       ...swr,
-      withdraw,
-      makeOffer,
-      buyShares,
       data: data || [],
     }
   }

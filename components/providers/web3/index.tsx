@@ -14,7 +14,9 @@ import {
 import { ethers } from 'ethers'
 
 import { MetaMaskInpageProvider } from '@metamask/providers'
-import { NftMarketContract } from '@_types/nftMarketContract'
+import { CcNftContract } from '@_types/ccNftContract'
+import { NftVendorContract } from '@_types/nftVendorContract'
+import { NftOffersContract } from '@_types/nftOffersContract'
 
 const pageReload = () => {
   window.location.reload()
@@ -47,27 +49,33 @@ const Web3Provider: React.FC<Props> = ({ children }) => {
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as any
         )
-        const contract = await loadContract('NftMarket', provider)
-        const usdtERC20 = await loadContract('MockUSDT', provider)
-        const VaultVendor = await loadContract('VaultVendor', provider)
-        const VaultFactory = await loadContract('VaultFactory', provider)
+        const ccNft = await loadContract('CCNft', provider)
+        const nftVendor = await loadContract('NftVendor', provider)
+        const nftOffers = await loadContract('NftOffers', provider)
+
+        // const VaultVendor = await loadContract('VaultVendor', provider)
+        // const VaultFactory = await loadContract('VaultFactory', provider)
 
         const signer = provider.getSigner()
 
-        const sigendUSDTErc20Contract = usdtERC20.connect(signer)
-        const signedContract = contract.connect(signer)
-        const signedVaultVendor = VaultVendor.connect(signer)
-        const signedVaultFactory = VaultFactory.connect(signer)
+        const sigendNftVendorContract = nftVendor.connect(signer)
+        const signedCCNftContract = ccNft.connect(signer)
+        const signedNftOffersContract = nftOffers.connect(signer)
+
+        // const signedVaultVendor = VaultVendor.connect(signer)
+        // const signedVaultFactory = VaultFactory.connect(signer)
 
         setGlobalListeners(window.ethereum)
         setWeb3Api(
           createWeb3State({
             ethereum: window.ethereum,
             provider,
-            erc20Contracts: { [usdtERC20.address]: sigendUSDTErc20Contract },
-            vaultVendor: signedVaultVendor as any,
-            vaultFactory: signedVaultFactory as any,
-            contract: signedContract as unknown as NftMarketContract,
+            // erc20Contracts: { [usdtERC20.address]: sigendNftVendorContract },
+            // vaultVendor: signedVaultVendor as unknown as VaultVendorContract,
+            // vaultFactory: signedVaultFactory as unknown as VaultFactoryContract,
+            ccNft: signedCCNftContract as unknown as CcNftContract,
+            nftVendor: sigendNftVendorContract as unknown as NftVendorContract,
+            nftOffers: signedNftOffersContract as unknown as NftOffersContract,
             isLoading: false,
           })
         )

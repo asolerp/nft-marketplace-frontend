@@ -14,7 +14,7 @@ import { useAuth } from '@hooks/auth'
 
 const navigation = [
   { name: 'Marketplace', href: '/', current: true },
-  { name: 'Cask World', href: '/nft/caskworld', current: false },
+  { name: 'Cask World', href: '/caskworld', current: false },
   { name: 'Create', href: '/nft/create', current: false },
 ]
 

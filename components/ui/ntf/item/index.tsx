@@ -1,10 +1,4 @@
-import { useAccount } from '@hooks/web3'
-import { useState } from 'react'
 import { Nft } from '../../../../types/nft'
-
-import { CircularProgressbarWithChildren } from 'react-circular-progressbar'
-
-import Slider from '@ui/common/Slider'
 
 type NftItemProps = {
   item: Nft
@@ -27,28 +21,25 @@ type NftItemProps = {
   showOwner?: boolean
 }
 
-const ERC20TokenNames: any = {
-  [process.env.NEXT_PUBLIC_USDT_TOKEN as string]: 'USDT',
-}
+// const ERC20TokenNames: any = {
+//   [process.env.NEXT_PUBLIC_USDT_TOKEN as string]: 'USDT',
+// }
 
 const NftItem: React.FC<NftItemProps> = ({
   item,
-  withdraw = () => {},
-  makeOffer = () => {},
-  buyNft = () => {},
-  burnNft = () => {},
-  buyShares = () => {},
-  buyNftWithEUR = () => {},
-  buyNftWithERC20 = () => {},
+  // withdraw,
+  // makeOffer,
+  // buyNft,
+  // burnNft,
+  // buyShares,
+  // buyNftWithEUR,
+  // buyNftWithERC20,
   showOwner = false,
-  withTransactions = true,
+  // withTransactions = true,
 }) => {
-  const { account } = useAccount()
-  const [address, setAddress] = useState('')
-  const [offer, setOffer] = useState('')
-  const [sliderShares, setSliderShares] = useState(
-    (item.totalShares - item.shares) * 10
-  )
+  // const { account } = useAccount()
+  // const [address, setAddress] = useState('')
+  // const [offer, setOffer] = useState('')
 
   console.log('ITEM', item)
 
@@ -86,7 +77,7 @@ const NftItem: React.FC<NftItemProps> = ({
             </p>
           </div>
         </div>
-        {item.isLocked ? (
+        {/* {item.isLocked ? (
           <>
             <p className="mb-5">Fractions Available: {item.shares}</p>
             <div className="flex flex-col items-center">
@@ -179,7 +170,7 @@ const NftItem: React.FC<NftItemProps> = ({
                   </dt>
                   <dd className="order-1 text-xl font-extrabold text-indigo-600">
                     <div className="flex justify-center items-center">
-                      {item.price} ETH
+                      {ethers.utils.formatEther(item.price)} ETH
                     </div>
                   </dd>
                 </div>
@@ -301,7 +292,7 @@ const NftItem: React.FC<NftItemProps> = ({
               </div>
             )}
           </div>
-        )}
+        )} */}
       </div>
     </>
   )

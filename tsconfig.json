@@ -25,6 +25,11 @@
       "@_types/*": ["types/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "pages/casks/[id]/index.tsx"
+  ],
   "exclude": ["node_modules"]
 }

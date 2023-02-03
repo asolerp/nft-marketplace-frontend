@@ -1,16 +1,20 @@
 import { MetaMaskInpageProvider } from '@metamask/providers'
 import { providers } from 'ethers'
 import { SWRResponse } from 'swr'
-import { NftMarketContract } from './nftMarketContract'
+import { CcNftContract } from './ccNftContract'
 import { NftOffersContract } from './nftOffersContract'
+import { NftVendorContract } from './nftVendorContract'
+import { VaultFactoryContract } from './vaultFactoryContract'
+import { VaultVendorContract } from './vaultVendorContract'
 
 export type Web3Dependencies = {
   erc20Contracts?: any
-  vaultVendor?: any
-  vaultFactory?: any
+  vaultVendor?: VaultVendorContract
+  vaultFactory?: VaultFactoryContract
   nftOffers?: NftOffersContract
   provider: providers.Web3Provider
-  contract: NftMarketContract
+  ccNft: CcNftContract
+  nftVendor: NftVendorContract
   ethereum: MetaMaskInpageProvider
   isLoading: boolean
 }

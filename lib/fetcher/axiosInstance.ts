@@ -1,7 +1,6 @@
 import axios, { HeadersDefaults } from 'axios'
-import { toast } from 'react-toastify'
 
-const axiosClient = axios.create()
+const axiosClient: any = axios.create()
 
 // Replace this with our own backend base URL
 
@@ -11,7 +10,7 @@ type headers = {
   Authorization: string
 }
 
-axiosClient.defaults.headers = {
+axiosClient!.defaults!.headers = {
   'Content-Type': 'application/json',
   Accept: 'application/json',
 } as headers & HeadersDefaults
@@ -19,7 +18,7 @@ axiosClient.defaults.headers = {
 // Adding Authorization header for all requests
 
 axiosClient.interceptors.request.use(
-  (config) => {
+  (config: any) => {
     const token = localStorage.getItem('token') as string
     if (token) {
       // Configure this as per your backend requirements
@@ -27,7 +26,7 @@ axiosClient.interceptors.request.use(
     }
     return config
   },
-  (error) => {
+  (error: any) => {
     return Promise.reject(error)
   }
 )

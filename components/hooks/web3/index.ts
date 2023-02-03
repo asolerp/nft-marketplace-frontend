@@ -8,6 +8,14 @@ export const useAccount = () => {
   }
 }
 
+export const useCaskNft = ({ caskId }: { caskId: string }) => {
+  const hooks = useHooks()
+  const swrRes = hooks.useCask({ caskId })
+  return {
+    cask: swrRes,
+  }
+}
+
 export const useNetwork = () => {
   const hooks = useHooks()
   const swrRes = hooks.useNetwork()
@@ -23,6 +31,15 @@ export const useAllNfts = () => {
 
   return {
     nfts: swrRes,
+  }
+}
+
+export const useFractionalizedNfts = () => {
+  const hooks = useHooks()
+  const swrRes = hooks.useFractionalizedNfts()
+
+  return {
+    fractionalizedNfts: swrRes,
   }
 }
 

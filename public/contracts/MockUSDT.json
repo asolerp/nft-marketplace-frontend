@@ -9389,10 +9389,73 @@
       "links": {},
       "address": "0x0Bb0aEBd5c8fc857b55f465D20610a35D3c5cF21",
       "transactionHash": "0x009f0b79b8cc340e5607395ab417e9c07bb0e491b3085a9fe6b4c32f71567e71"
+    },
+    "1674119026393": {
+      "events": {
+        "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "spender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Approval",
+          "type": "event"
+        },
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Transfer",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xEd20Df39edE10E8e3abCbB849CbEEeb37a83B3E1",
+      "transactionHash": "0xd3c2641ce435edce47d60cdbe2e2f0f8bee15b16bc8bc43e90ce4e565737bec7"
+    },
+    "1674142729621": {
+      "events": {},
+      "links": {},
+      "address": "0x6d1BedCb0e5B3Eb2B65788DB67E832ef8aA2D58c",
+      "transactionHash": "0xfa5a62e098f5bd0f2747ff95416ec64a62b5684db72286094f0e0d474d544ca5"
     }
   },
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-01-18T22:25:09.013Z",
+  "updatedAt": "2023-01-19T22:06:48.077Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

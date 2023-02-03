@@ -1,5 +1,6 @@
 import { useAccount } from '@hooks/web3'
 import { useGlobal } from '@providers/global'
+import { GlobalTypes } from '@providers/global/utils'
 import React, { useState } from 'react'
 
 type Props = {
@@ -11,6 +12,7 @@ const UserInfoModal: React.FC<Props> = ({ modalIsOpen, closeModal }) => {
   const { account } = useAccount()
 
   const {
+    dispatch,
     state: { user },
   } = useGlobal()
   const [email, setEmail] = useState<string>('')
@@ -76,14 +78,22 @@ const UserInfoModal: React.FC<Props> = ({ modalIsOpen, closeModal }) => {
                   <button
                     className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
                       account.handelSaveUser({
                         id: user._id,
                         email,
                         nickname,
-                        callback: closeModal,
+                        callback: () => {
+                          closeModal()
+                          setTimeout(() => {
+                            return dispatch({
+                              type: GlobalTypes.SET_SIGN_IN_MODAL,
+                              payload: { state: true },
+                            })
+                          }, 300)
+                        },
                       })
-                    }
+                    }}
                   >
                     Continue
                   </button>

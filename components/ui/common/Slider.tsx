@@ -17,10 +17,7 @@ const Slider: React.FC<SliderProps> = ({
     <>
       {label && (
         <>
-          <label
-            for="default-range"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
+          <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
             Default range
           </label>
         </>

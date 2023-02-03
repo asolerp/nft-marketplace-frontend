@@ -70,14 +70,6 @@ export const hookFactory: AccountHookFactory =
       }
     })
 
-    useEffect(() => {
-      localStorage.setItem('user_id', data as string)
-      const token = localStorage.getItem('token')
-      if (token) {
-        dispatch({ type: GlobalTypes.SET_TOKEN, payload: { token } })
-      }
-    }, [data])
-
     const handleAccountsChange = (...args: unknown[]) => {
       const accounts = args[0] as string[]
       if (accounts.length === 0) {
@@ -95,7 +87,7 @@ export const hookFactory: AccountHookFactory =
           data as string
         )
         const responseSign = await axios.post(
-          `/user/${data}/signature`,
+          `/api/user/${data}/signature`,
           signedMessage
         )
         dispatch({
@@ -126,14 +118,14 @@ export const hookFactory: AccountHookFactory =
       callback: () => void
     }) => {
       try {
-        await axios.post('/user', {
+        await axios.post('/api/user', {
           id,
           email,
           nickname,
         })
         dispatch({
           type: GlobalTypes.SET_USER,
-          payload: { user: { _id: id, email, nickname } },
+          payload: { user: { _id: id, email, nickname, address: data } },
         })
         callback()
       } catch (e: any) {
@@ -152,26 +144,26 @@ export const hookFactory: AccountHookFactory =
         type: GlobalTypes.SET_USER,
         payload: { user: null },
       })
-      await axiosClient.get(`/user/${data}/cleanTokens`)
+      await axiosClient.get(`/api/user/${data}/cleanTokens`)
       Router.push('/')
     }
 
     const connect = async () => {
-      console.log(data, token)
+      console.log(user)
       if (!data) {
         return await ethereum?.request({
           method: 'eth_requestAccounts',
         })
       }
-      if (!token) {
-        return dispatch({
-          type: GlobalTypes.SET_SIGN_IN_MODAL,
-          payload: { state: true },
-        })
-      }
       if (!user?.email) {
         return dispatch({
           type: GlobalTypes.SET_USER_INFO_MODAL,
+          payload: { state: true },
+        })
+      }
+      if (!token) {
+        return dispatch({
+          type: GlobalTypes.SET_SIGN_IN_MODAL,
           payload: { state: true },
         })
       }

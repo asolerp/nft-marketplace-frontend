@@ -4,13 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "start:dev": "NODE_ENV='development' node server.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "genContractType": "abi-types-generator './public/contracts/NftMarket.json' --output='./types' --name=nftMarketContract --provider=ethers_v5",
-    "genUSDTContractType": "abi-types-generator './public/contracts/MockUSDT.json' --output='./types' --name=mockUSDTContract --provider=ethers_v5",
+    "genCCNftType": "abi-types-generator './public/contracts/CCNft.json' --output='./types' --name=ccNftContract --provider=ethers_v5",
+    "genNftVendorType": "abi-types-generator './public/contracts/NftVendor.json' --output='./types' --name=nftVendorContract --provider=ethers_v5",
     "genNftOffersContractType": "abi-types-generator './public/contracts/NftOffers.json' --output='./types' --name=nftOffersContract --provider=ethers_v5",
-    "genNftFractionContractType": "abi-types-generator './public/contracts/NftFraction.json' --output='./types' --name=nftFractionContract --provider=ethers_v5"
+    "genVaultFactoryContractType": "abi-types-generator './public/contracts/VaultFactory.json' --output='./types' --name=vaultFactoryContract --provider=ethers_v5",
+    "genVaultVendorContractType": "abi-types-generator './public/contracts/VaultVendor.json' --output='./types' --name=vaultVendorContract --provider=ethers_v5",
+    "genTokenVaultContractType": "abi-types-generator './public/contracts/TokenVault.json' --output='./types' --name=tokenVaultContract --provider=ethers_v5"
   },
   "proxy": "http://localhost:4000",
   "dependencies": {
@@ -31,6 +34,7 @@
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
     "form-data": "^4.0.0",
+    "http-proxy-middleware": "^2.0.6",
     "next": "13.0.6",
     "next-http-proxy-middleware": "^1.2.5",
     "next-iron-session": "^4.2.0",
@@ -43,6 +47,7 @@
     "react-slider": "^2.0.4",
     "react-toastify": "^9.1.1",
     "swr": "^2.0.0",
+    "truffle-contract-size": "^2.0.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

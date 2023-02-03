@@ -1,5 +1,7 @@
 /* eslint-disable react/display-name */
 
+import { useGlobal } from '@providers/global'
+import { GlobalTypes } from '@providers/global/utils'
 import axios from 'axios'
 import axiosClient from 'lib/fetcher/axiosInstance'
 import { useRouter } from 'next/router'
@@ -9,6 +11,7 @@ const withAuth = (WrappedComponent: React.FC) => {
   return (props: any) => {
     const Router = useRouter()
     const [verified, setVerified] = useState(false)
+    const { dispatch } = useGlobal()
 
     useEffect(() => {
       const verifyToken = async () => {
@@ -19,7 +22,7 @@ const withAuth = (WrappedComponent: React.FC) => {
             Router.replace('/')
           } else {
             // we call the api that verifies the token.
-            const data = await axios.get('/user/verify', {
+            const data = await axios.get('/api/user/verify', {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
               },
@@ -30,12 +33,20 @@ const withAuth = (WrappedComponent: React.FC) => {
             } else {
               // If the token was fraud we first remove it from localStorage and then redirect to "/"
               localStorage.removeItem('token')
+              dispatch({
+                type: GlobalTypes.SET_TOKEN,
+                payload: { token: null },
+              })
               Router.replace('/')
             }
           }
         } catch (e: any) {
           if (e.response.status === 401) {
             localStorage.removeItem('token')
+            dispatch({
+              type: GlobalTypes.SET_TOKEN,
+              payload: { token: null },
+            })
             Router.replace('/')
           }
           if (e.response.status === 403) {
@@ -44,7 +55,7 @@ const withAuth = (WrappedComponent: React.FC) => {
               if (!refreshToken) {
                 Router.replace('/')
               } else {
-                const res = await axiosClient.post('/user/refresh', {
+                const res = await axiosClient.post('/api/user/refresh', {
                   token: refreshToken,
                 })
                 console.log('REFRESH RES', res)
@@ -56,13 +67,17 @@ const withAuth = (WrappedComponent: React.FC) => {
             } catch {
               localStorage.removeItem('token')
               localStorage.removeItem('refresh-token')
+              dispatch({
+                type: GlobalTypes.SET_TOKEN,
+                payload: { token: null },
+              })
               Router.replace('/')
             }
           }
         }
       }
       verifyToken()
-    }, [Router])
+    }, [Router, dispatch])
 
     if (verified) {
       return <WrappedComponent {...props} />

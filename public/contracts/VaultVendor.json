@@ -8408,10 +8408,67 @@
       "links": {},
       "address": "0x001bE6ab8F8040DBe65DcC846B1f47d24c012069",
       "transactionHash": "0x355f7246a2e6108c1c708b0eb66abf2e78be5efc7e7d4a43a5cbdf072befa27a"
+    },
+    "1674119026393": {
+      "events": {
+        "0x0a37b72bb67eee30e09084cf386f8a17817c57f620c3ab95fb25d6a20356ec77": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "buyer",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amountOfMATIC",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amountOfTokens",
+              "type": "uint256"
+            }
+          ],
+          "name": "BuyTokens",
+          "type": "event"
+        },
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x4Bd74ceeCD2A309884a61F54D648818689fbdb0a",
+      "transactionHash": "0x773fdea6c457f734dda5766bb94d79e5906af8b77240568ddbd4eb30ea96a1da"
+    },
+    "1674142729621": {
+      "events": {},
+      "links": {},
+      "address": "0x58B4F3c0dC571e035071a4C4223a038C090E8cD9",
+      "transactionHash": "0x72ba1d7967c5800536acf19bc0f2d8afbfb216f2f9e63cad678d9ab30d1e9889"
     }
   },
   "schemaVersion": "3.4.11",
-  "updatedAt": "2023-01-18T22:25:09.378Z",
+  "updatedAt": "2023-01-19T22:06:48.519Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",

@@ -20,28 +20,27 @@ export const hookFactory: AuthHookFactory = () => () => {
   const { dispatch } = useGlobal()
 
   const { data: user } = useSWR(
-    data ? `/user/${data.toLowerCase()}` : null,
+    data ? `/api/user/${data.toLowerCase()}` : null,
     async (url: string) => {
-      return axiosClient.get(url).then((res) => res.data)
+      return axiosClient.get(url).then((res: any) => res.data)
     }
   )
 
   useEffect(() => {
-    const token = localStorage.getItem('token') as string
+    const token = localStorage.getItem('token')
+    dispatch({
+      type: GlobalTypes.SET_TOKEN,
+      payload: { token },
+    })
+  }, [dispatch])
+
+  useEffect(() => {
     if (data && user) {
-      dispatch({ type: GlobalTypes.SET_USER, payload: { user } })
-      if (!user?.email) {
-        return dispatch({
-          type: GlobalTypes.SET_USER_INFO_MODAL,
-          payload: { state: true },
-        })
-      }
-      if (!token) {
-        return dispatch({
-          type: GlobalTypes.SET_SIGN_IN_MODAL,
-          payload: { state: true },
-        })
-      }
+      console.log('user', user)
+      dispatch({
+        type: GlobalTypes.SET_USER,
+        payload: { user: { ...user, address: data } },
+      })
     }
   }, [user, dispatch, data])
 }

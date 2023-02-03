@@ -15,13 +15,11 @@ export type NftMeta = {
 export type NftCore = {
   tokenURI: string
   tokenId: number
-  price: number
+  price?: number
   creator: string
   owner: string
-  isLocked: boolean
-  isListed: boolean
-  shares: number
-  totalShares: number
+  shares?: number
+  totalShares?: number
 }
 
 export type ERC20Price = {
