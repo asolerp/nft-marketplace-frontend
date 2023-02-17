@@ -168,13 +168,17 @@ contract NftVendor is ERC2981, ReentrancyGuard {
     }
 
     uint256 royaltyAmount = getRoyalty(tokenId);
-    bool excluded = isExcluded();
+    bool isEscluded = isExcluded();
 
-    if (excluded) {
-      s_proceeds[listedItem.seller] += msg.value;
+    if (isEscluded) {
+      (bool success1, ) = payable(listedItem.seller).call{value: msg.value}('');
+      require(success1);
     } else {
       _payTxFee(royaltyAmount);
-      s_proceeds[listedItem.seller] += msg.value - royaltyAmount;
+      (bool success1, ) = payable(listedItem.seller).call{
+        value: msg.value - royaltyAmount
+      }('');
+      require(success1);
     }
 
     delete (s_listings[tokenId]);

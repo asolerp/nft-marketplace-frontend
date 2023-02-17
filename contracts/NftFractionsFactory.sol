@@ -18,6 +18,7 @@ import './NftFractionToken.sol';
 contract NftFractionsFactory is Ownable, Pausable {
   /// @notice the number of ERC721 vaults
   uint256 public vaultCount;
+  address[] public tokenAddressCreated;
 
   /// @notice the mapping of vault number to vault contract
   mapping(uint256 => address) public vaults;
@@ -44,6 +45,7 @@ contract NftFractionsFactory is Ownable, Pausable {
   /// @param _token the ERC721 token address fo the NFT
   /// @param _id the uint256 ID of the token
   /// @param _supply is the initial total supply of the token
+  /// @param _fee is the fee
   /// @param _listPrice the initial price of the NFT
   /// @return the ID of the vault
   function mint(
@@ -52,14 +54,16 @@ contract NftFractionsFactory is Ownable, Pausable {
     address _token,
     uint256 _id,
     uint256 _supply,
+    uint256 _fee,
     uint256 _listPrice
   ) external whenNotPaused returns (uint256) {
     bytes memory _initializationCalldata = abi.encodeWithSignature(
-      'initialize(address,address,uint256,uint256,uint256,string,string)',
+      'initialize(address,address,uint256,uint256,uint256,uint256,string,string)',
       msg.sender,
       _token,
       _id,
       _supply,
+      _fee,
       _listPrice,
       _name,
       _symbol
@@ -75,6 +79,7 @@ contract NftFractionsFactory is Ownable, Pausable {
 
     vaultByTokenId[_id] = vault;
     vaults[vaultCount] = vault;
+    tokenAddressCreated.push(vault);
 
     vaultCount++;
 
@@ -86,6 +91,10 @@ contract NftFractionsFactory is Ownable, Pausable {
   ) external view returns (ERC20) {
     ERC20 vault = ERC20(vaultByTokenId[_tokenId]);
     return vault;
+  }
+
+  function getAllCreatedVaults() external view returns (address[] memory) {
+    return tokenAddressCreated;
   }
 
   function getVaultContract(uint256 _id) external view returns (ERC20) {

@@ -4,7 +4,8 @@ import { CryptoHookFactory } from '@_types/hooks'
 import { Nft } from '@_types/nft'
 import axios from 'axios'
 import { ethers } from 'ethers'
-import { useCallback } from 'react'
+import axiosClient from 'lib/fetcher/axiosInstance'
+import { useCallback, useState } from 'react'
 import { toast } from 'react-toastify'
 
 import useSWR from 'swr'
@@ -16,8 +17,10 @@ type CaskNftHookFactory = CryptoHookFactory<Nft[]>
 export type UseCaskNftsHook = ReturnType<CaskNftHookFactory>
 
 export const hookFactory: CaskNftHookFactory =
-  ({ nftOffers, nftVendor }) =>
+  ({ nftOffers, nftVendor, nftFractionsVendor, nftFractionToken }) =>
   ({ caskId }) => {
+    const [tokenAmmount, setTokenAmmount] = useState<number | undefined>(0)
+
     const {
       state: { user, token },
       dispatch,
@@ -27,13 +30,22 @@ export const hookFactory: CaskNftHookFactory =
       'web3/useCaskNft',
       async () => {
         const { data: nfts }: any = await axios.get(`/api/casks/${caskId}`)
-        return nfts
+        const transactions = await axiosClient.get(
+          `/api/get-transactions?tokenId=${caskId}`
+        )
+        if (transactions.data.length) {
+          nfts.transactions = transactions.data
+        }
+        return {
+          ...nfts,
+        }
       },
       { revalidateOnFocus: true }
     )
 
     const _nftOffers = nftOffers
     const _nftVendor = nftVendor
+    const _nftFractionsVendor = nftFractionsVendor
 
     const isUserNeededDataFilled = user?.email && token
     const hasOffersFromUser = data?.offer?.bidders?.some(
@@ -54,6 +66,8 @@ export const hookFactory: CaskNftHookFactory =
         })
       }
     }, [dispatch, token, user?.email])
+
+    const hasFractions = data?.fractions?.total
 
     const buyNft = useCallback(
       async (tokenId: number, price: string) => {
@@ -87,6 +101,62 @@ export const hookFactory: CaskNftHookFactory =
         }
       },
       [_nftVendor, handleUserState, isUserNeededDataFilled]
+    )
+
+    const buyFractionizedNft = useCallback(async () => {
+      try {
+        if (isUserNeededDataFilled) {
+          const listingPrice = data?.fractions?.listingPrice.toString()
+
+          const _signedTokenContract = await nftFractionToken(
+            data?.fractions?.tokenAddress
+          )
+
+          await _signedTokenContract.purchase({
+            value: listingPrice,
+          })
+        } else {
+          handleUserState()
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    }, [
+      isUserNeededDataFilled,
+      data?.fractions?.tokenAddress,
+      data?.fractions?.listingPrice,
+      handleUserState,
+    ])
+
+    const buyFractions = useCallback(
+      async (
+        tokenAddress: string,
+        unitPrice: number,
+        numberOfFractions: number
+      ) => {
+        try {
+          if (isUserNeededDataFilled) {
+            const value =
+              Number(
+                ethers.utils.parseUnits(
+                  numberOfFractions!.toString() as string,
+                  'ether'
+                )
+              ) / unitPrice
+
+            console.log(tokenAddress)
+
+            await _nftFractionsVendor?.buyTokens(tokenAddress, {
+              value: value.toString(),
+            })
+          } else {
+            handleUserState()
+          }
+        } catch (err) {
+          console.error(err)
+        }
+      },
+      [isUserNeededDataFilled, _nftFractionsVendor, handleUserState]
     )
 
     const makeOffer = useCallback(
@@ -125,11 +195,16 @@ export const hookFactory: CaskNftHookFactory =
     }, [_nftOffers, caskId])
 
     return {
+      data,
       ...swr,
       buyNft,
       makeOffer,
       cancelOffer,
+      buyFractions,
+      tokenAmmount,
+      hasFractions,
+      setTokenAmmount,
       hasOffersFromUser,
-      data,
+      buyFractionizedNft,
     }
   }

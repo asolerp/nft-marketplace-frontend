@@ -11,11 +11,13 @@ import { useGlobal } from '@providers/global'
 import { GlobalTypes } from '@providers/global/utils'
 import UserInfoModal from '@ui/modals/UserInfoModal'
 import { useAuth } from '@hooks/auth'
+import Link from 'next/link'
+import Image from 'next/image'
 
 const navigation = [
-  { name: 'Marketplace', href: '/', current: true },
-  { name: 'Cask World', href: '/caskworld', current: false },
-  { name: 'Create', href: '/nft/create', current: false },
+  { name: 'Marketplace', href: '/marketplace' },
+  { name: 'Exchange', href: '/exchange' },
+  { name: 'About us', href: '/about' },
 ]
 
 function classNames(...classes: string[]) {
@@ -51,11 +53,11 @@ export default function Navbar() {
           })
         }
       />
-      <Disclosure as="nav" className="bg-gray-800">
+      <Disclosure as="nav">
         {({ open }) => (
           <>
-            <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-              <div className="relative flex h-16 items-center justify-between">
+            <div className="absolute z-50 mx-auto w-full px-2 sm:px-6 lg:px-8">
+              <div className="relative bg-transparent flex h-24 items-center justify-between">
                 <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                   {/* Mobile menu button*/}
                   <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
@@ -68,56 +70,60 @@ export default function Navbar() {
                   </Disclosure.Button>
                 </div>
                 <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                  <div className="flex flex-shrink-0 items-center">
-                    <p className="text-xl font-bold text-white">My Cask</p>
+                  <div className="flex flex-1 items-center">
+                    <Link href={`/`}>
+                      <div className="flex flex-row space-x-3 items-center">
+                        <p className=" text-4xl font-bold text-white text-opacity-90">
+                          CaskChain
+                        </p>
+                      </div>
+                    </Link>
                   </div>
-                  <div className="hidden sm:ml-6 sm:block">
-                    <div className="flex space-x-4">
-                      {navigation.map((item) => (
-                        <ActiveLink
-                          activeclass="bg-gray-900 text-white"
-                          key={item.name}
-                          href={item.href}
-                        >
-                          <span
-                            className={
-                              'text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium'
-                            }
-                            aria-current={item.current ? 'page' : undefined}
-                          >
-                            {item.name}
-                          </span>
-                        </ActiveLink>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  <div className="text-gray-300 self-center mr-2">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-purple-100 text-purple-800">
-                      <svg
-                        className="-ml-0.5 mr-1.5 h-2 w-2 text-indigo-400"
-                        fill="currentColor"
-                        viewBox="0 0 8 8"
+                  <div className="flex flex-grow space-x-3 justify-center items-center">
+                    {navigation.map((item) => (
+                      <ActiveLink
+                        activeclass="bg-amber-300 text-slate-700"
+                        key={item.name}
+                        href={item.href}
                       >
-                        <circle cx={4} cy={4} r={3} />
-                      </svg>
-                      {network.isLoading
-                        ? 'Loading...'
-                        : account.isInstalled
-                        ? network.data
-                        : 'Install Web3 Wallet'}
-                    </span>
+                        <span
+                          className={
+                            'text-white hover:bg-gray-700 hover:text-white px-3 py-3 rounded-full text-sm font-semibold'
+                          }
+                          aria-current={item.current ? 'page' : undefined}
+                        >
+                          {item.name.toUpperCase()}
+                        </span>
+                      </ActiveLink>
+                    ))}
                   </div>
-                  <Walletbar
-                    token={token}
-                    user={user}
-                    isInstalled={account.isInstalled}
-                    isLoading={account.isLoading}
-                    account={account?.data as string}
-                    connect={account.connect}
-                    logout={account.logout}
-                  />
+                  <div className="flex flex-1 justify-end items-center pr-2 sm:static sm:inset-auto sm:pr-0">
+                    <div className="text-gray-200 self-center mr-2">
+                      <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-slate-700 text-white">
+                        <svg
+                          className="-ml-0.5 mr-1.5 h-2 w-2 text-amber-300"
+                          fill="currentColor"
+                          viewBox="0 0 8 8"
+                        >
+                          <circle cx={4} cy={4} r={3} />
+                        </svg>
+                        {network.isLoading
+                          ? 'Loading...'
+                          : account.isInstalled
+                          ? network.data
+                          : 'Install Web3 Wallet'}
+                      </span>
+                    </div>
+                    <Walletbar
+                      token={token}
+                      user={user}
+                      isInstalled={account.isInstalled}
+                      isLoading={account.isLoading}
+                      account={account?.data as string}
+                      connect={account.connect}
+                      logout={account.logout}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

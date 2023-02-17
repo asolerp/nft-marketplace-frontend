@@ -14,7 +14,7 @@ const ActiveLink: React.FC<LinkProps> = ({ children, ...props }) => {
   const _defaultClass = `${className} text-gray-100`
 
   if (pathname === props.href) {
-    className = `${className} text-indigo-400 ${props.activeclass}`
+    className = `${className} ${props.activeclass}`
   } else {
     className = _defaultClass
   }

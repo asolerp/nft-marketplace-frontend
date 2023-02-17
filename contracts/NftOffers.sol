@@ -150,14 +150,15 @@ contract NftOffers is ReentrancyGuard {
     uint256 highestBid = tokenIdToOffer[_tokenId].highestBid;
     address highestBidder = tokenIdToOffer[_tokenId].highestBidder;
     uint256 royalty;
+    bool excluded = nftVendor.isExcluded();
 
     royalty = nftVendor.calculateRoyaltyForAcceptedOffer(_tokenId, highestBid);
 
-    if (!nftVendor.isExcluded()) {
+    if (excluded) {
+      seller.transfer(highestBid);
+    } else {
       nftVendor._payTxFee(royalty);
       seller.transfer(highestBid - royalty);
-    } else {
-      seller.transfer(highestBid);
     }
 
     IERC721(collection).transferFrom(msg.sender, highestBidder, _tokenId);

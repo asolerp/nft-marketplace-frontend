@@ -100,7 +100,7 @@ module.exports = {
         ),
       from: '0x54Ca6E36FE4C534D89A1bFbbc5567F1C3dA78988',
       gas: 4465030,
-      gasPrice: '70000000000',
+      gasPrice: '10000000000',
       network_id: 5, // Goerli's id
     },
     mumbai: {

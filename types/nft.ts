@@ -1,4 +1,4 @@
-export type Trait = 'year' | 'extraction' | 'country' | 'region'
+export type Trait = 'year' | 'extractions' | 'country' | 'region'
 
 export type NftAttribute = {
   trait_type: Trait
@@ -27,6 +27,19 @@ export type ERC20Price = {
   price: number
 }
 
+export type FractionHolders = {
+  address: string
+  balance: number
+}
+
+export type FractionBalance = {
+  address: string
+  name: string
+  symbol: string
+  balance: number
+  canRedem: boolean
+}
+
 export type TransactionHistory = {
   id: string
   from: string
@@ -40,6 +53,7 @@ export type Nft = {
   meta: NftMeta
   erc20Prices?: ERC20Price[]
   transactions?: TransactionHistory[]
+  fractions?: any
   bidders?: string[]
   offer?: any
 } & NftCore

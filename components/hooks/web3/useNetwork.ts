@@ -9,6 +9,7 @@ const NETWORKS: { [k: string]: string } = {
   42: 'Kovan Test Network',
   56: 'Binance Smart Chain',
   1337: 'Ganache',
+  80001: 'Matic Mumbai Testnet',
 }
 
 const targetId = process.env.NEXT_PUBLIC_TARGET_CHAIN_ID as string

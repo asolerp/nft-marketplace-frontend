@@ -15,11 +15,15 @@ type OwnedNftsHookFactory = CryptoHookFactory<UseOwnedNftsResponse>
 export type UseOwnedNftsHook = ReturnType<OwnedNftsHookFactory>
 
 export const hookFactory: OwnedNftsHookFactory =
-  ({ ccNft, nftVendor }) =>
+  ({ ccNft, nftVendor, nftFractionToken, nftOffers, provider }) =>
   () => {
+    const _ccNft = ccNft
+    const _nftVendor = nftVendor
+
     const [activeNft, setActiveNft] = useState<Nft>()
     const [isApproved, setIsApproved] = useState(false)
     const [listPrice, setListPrice] = useState('')
+
     const { data, ...swr } = useSWR('/api/casks/me', async () => {
       const ownedNfts: any = await axiosClient.get('/api/casks/me')
 
@@ -38,6 +42,35 @@ export const hookFactory: OwnedNftsHookFactory =
       return nfts
     })
 
+    const { data: dataBalances } = useSWR(
+      nftFractionToken ? '/api/user/balances' : null,
+      async () => {
+        const balances: any = await axiosClient.get('/api/user/balances')
+
+        const balancesWithRedem = await Promise.all(
+          balances.data.map(async (tokenAddress: any) => {
+            try {
+              const tokenContract = await nftFractionToken!(
+                tokenAddress.address
+              )
+              const canRedem = await tokenContract.canRedeem()
+
+              return {
+                ...tokenAddress,
+                canRedem,
+              }
+            } catch (e: any) {
+              console.log(e)
+            }
+          })
+        )
+
+        return balancesWithRedem.filter(
+          (tokenAddress: any) => tokenAddress.balance > 0
+        )
+      }
+    )
+
     const { data: offersData } = useSWR(
       activeNft ? '/api/offer' : null,
       async () => {
@@ -48,29 +81,60 @@ export const hookFactory: OwnedNftsHookFactory =
       }
     )
 
-    useEffect(() => {
-      if (data && data.length > 0) {
-        setActiveNft(data[0])
-      } else {
-        setActiveNft(undefined)
+    const redeemFractions = async (tokenAddress: string, amount: number) => {
+      try {
+        const tokenContract = await nftFractionToken!(tokenAddress)
+        const result = await tokenContract.redeem(amount)
+        await toast.promise(result.wait(), {
+          pending: 'Processing transaction',
+          success: 'The redem was successful',
+          error: 'Processing error',
+        })
+      } catch (e: any) {
+        console.log(e)
       }
-    }, [data])
+    }
 
-    const _ccNft = ccNft
-    const _nftVendor = nftVendor
+    const acceptOffer = async (tokenId: string) => {
+      try {
+        await _ccNft
+          ?.approve(
+            process.env.NEXT_PUBLIC_NFT_OFFERS_ADDRESS as string,
+            tokenId
+          )
+          .then(async () => {
+            const result = await nftOffers?.acceptOffer(tokenId)
+            await toast.promise(result!.wait(), {
+              pending: 'Processing transaction',
+              success: 'The sell was approved',
+              error: 'Processing error',
+            })
+          })
+      } catch (e: any) {
+        console.log(e)
+      }
+    }
 
     const approveSell = async (tokenId: number) => {
       try {
+        const gasPrice = await provider?.getGasPrice()
+
         const result = await _ccNft?.approve(
           process.env.NEXT_PUBLIC_NFT_VENDOR_ADDRESS as string,
-          tokenId
+          tokenId,
+          {
+            gasPrice,
+            gasLimit: 100000,
+          }
         )
+
         await toast.promise(result!.wait(), {
           pending: 'Processing transaction',
           success: 'The sell was approved',
           error: 'Processing error',
         })
         const txStatus = await result?.wait()
+        console.log(txStatus, 'STATUS')
         if (txStatus?.status === 1) {
           setIsApproved(true)
         }
@@ -99,6 +163,14 @@ export const hookFactory: OwnedNftsHookFactory =
       }
     }
 
+    useEffect(() => {
+      if (data && data.length > 0) {
+        setActiveNft(data[0])
+      } else {
+        setActiveNft(undefined)
+      }
+    }, [data])
+
     return {
       ...swr,
       listNft,
@@ -107,9 +179,12 @@ export const hookFactory: OwnedNftsHookFactory =
       offersData,
       isApproved,
       approveSell,
+      acceptOffer,
       setActiveNft,
+      dataBalances,
       setListPrice,
       setIsApproved,
+      redeemFractions,
       data: data || [],
     }
   }

@@ -4,12 +4,14 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 import '@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 
 contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
   using Address for address;
+  using SafeMath for uint256;
 
   /// -----------------------------------
   /// -------- BASIC INFORMATION --------
@@ -34,7 +36,7 @@ contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
 
   /// @notice reservePrice * votingTokens
   uint256 public reserveTotal;
-
+  uint256 public price;
   /// -----------------------------------
   /// -------- VAULT INFORMATION --------
   /// -----------------------------------
@@ -47,6 +49,8 @@ contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
 
   bool public forSale;
   bool public canRedeem;
+  uint256 public fee;
+  address public curator;
 
   /// ------------------------
   /// -------- EVENTS --------
@@ -54,6 +58,9 @@ contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
 
   /// @notice An event emitted when a user updates their price
   event PriceUpdate(address indexed user, uint price);
+
+  /// @notice An event emitted when a curator updates de fee
+  event FeeUpdate(address indexed user, uint price);
 
   /// @notice An event emitted when an auction starts
   event Start(address indexed buyer, uint price);
@@ -77,6 +84,7 @@ contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
     address _token,
     uint256 _id,
     uint256 _supply,
+    uint256 _fee,
     uint256 _listPrice,
     string memory _name,
     string memory _symbol
@@ -87,14 +95,33 @@ contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
     // set storage variables
     token = _token;
     id = _id;
-    forSale = true;
-    reserveTotal = _listPrice * _supply;
-    votingTokens = _listPrice == 0 ? 0 : _supply;
+    fee = _fee;
+    price = _listPrice;
+    curator = _curator;
+    // reserveTotal = _listPrice * _supply;
+    // votingTokens = _listPrice == 0 ? 0 : _supply;
     _mint(_curator, _supply);
   }
 
   function reservePrice() public view returns (uint256) {
-    return votingTokens == 0 ? 0 : reserveTotal / votingTokens;
+    return price;
+  }
+
+  function updateSaleState(bool state) external {
+    require(curator == msg.sender, 'You are not the curator');
+    forSale = state;
+  }
+
+  function updateUserPrice(uint256 _new) external {
+    require(curator == msg.sender, 'You are not the curator');
+    price = _new;
+    emit PriceUpdate(msg.sender, _new);
+  }
+
+  function updateFee(uint256 _newFee) external {
+    require(curator == msg.sender, 'You are not the curator');
+    fee = _newFee;
+    emit FeeUpdate(msg.sender, _newFee);
   }
 
   function purchase() external payable {
@@ -108,9 +135,22 @@ contract NftFractionToken is ERC20Upgradeable, ERC721HolderUpgradeable {
   function redeem(uint256 _amount) external {
     require(canRedeem, 'Redemption not available');
     uint256 totalEther = address(this).balance;
+
     uint256 toRedeem = (_amount * totalEther) / totalSupply();
+    uint256 percentageFee = (toRedeem.mul(fee)).div(10000);
+    uint256 total = toRedeem.sub(percentageFee);
 
     _burn(msg.sender, _amount);
-    payable(msg.sender).transfer(toRedeem);
+
+    payable(curator).transfer(percentageFee);
+    payable(msg.sender).transfer(total);
+  }
+
+  function withdraw() public {
+    require(curator == msg.sender, 'You are not the curator');
+    uint256 ownerBalance = address(this).balance;
+    require(ownerBalance > 0, 'No ETH present in Vendor');
+    (bool sent, ) = msg.sender.call{value: address(this).balance}('');
+    require(sent, 'Failed to withdraw');
   }
 }

@@ -1,56 +1,27 @@
 import { useListedNfts } from '@hooks/web3'
+import { Nft } from '@_types/nft'
 import Link from 'next/link'
-import NftItem from '../item'
+
+import GeneralNftInfo from '../item/GeneralNftInfo'
 
 const NftList: React.FC = () => {
   const { nfts } = useListedNfts()
 
   return (
-    <>
-      <p className="text-xl mt-12 font-semibold text-gray-900">By CaskChain</p>
-      <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
-        {nfts &&
-          nfts?.data?.map((nft) => (
-            <div
-              key={nft.meta.image}
-              className="flex flex-col rounded-lg shadow-lg overflow-hidden"
-            >
-              <Link href={`/cask/${nft.tokenId}`}>
-                <NftItem
-                  showOwner={false}
-                  withTransactions={true}
-                  item={nft}
-                  // buyNft={nfts.buyNft}
-                  // buyNftWithEUR={nfts.buyNftWithEUR}
-                  // buyNftWithERC20={nfts.buyNftWithERC20}
-                  // burnNft={nfts.burnNft}
-                />
-              </Link>
+    <div>
+      <p className="text-4xl mt-12 mb-8 font-semibold text-amber-300">
+        NFTs Casks
+      </p>
+      <div className="flex flex-row space-x-6 mt-6 max-w-lg">
+        {nfts.data?.map((nft: Nft) => (
+          <Link key={nft.meta.image} href={`/cask/${nft.tokenId}`}>
+            <div className="flex flex-col rounded-lg shadow-lg overflow-hidden">
+              <GeneralNftInfo item={nft} blow />
             </div>
-          ))}
+          </Link>
+        ))}
       </div>
-      {/* <p className="text-xl mt-12 font-semibold text-gray-900">By Community</p>
-      <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
-        {nfts.data
-          ?.filter((nft) => nft.creator !== nft.owner)
-          ?.map((nft) => (
-            <div
-              key={nft.meta.image}
-              className="flex flex-col rounded-lg shadow-lg overflow-hidden"
-            >
-              <NftItem
-                showOwner={false}
-                withTransactions={true}
-                item={nft}
-                buyNft={nfts.buyNft}
-                burnNft={nfts.burnNft}
-                buyNftWithEUR={nfts.buyNftWithEUR}
-                buyNftWithERC20={nfts.buyNftWithERC20}
-              />
-            </div>
-          ))}
-      </div> */}
-    </>
+    </div>
   )
 }
 

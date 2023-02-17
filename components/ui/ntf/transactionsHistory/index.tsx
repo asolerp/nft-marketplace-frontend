@@ -2,6 +2,7 @@ import React from 'react'
 
 import { TransactionHistory } from '@_types/nft'
 import { ethers } from 'ethers'
+import { addressSimplifier } from 'utils/addressSimplifier'
 
 type TransactionsHistoryProps = {
   transactions?: TransactionHistory[]
@@ -13,40 +14,40 @@ const TransactionsHistory: React.FC<TransactionsHistoryProps> = ({
   return (
     <div className="flex flex-col">
       <div className="overflow-x-auto sm:mx-0.5 lg:mx-0.5">
-        <div className="py-2 inline-block min-w-full sm:px-6 lg:px-8">
+        <div className="py-2 inline-block min-w-full">
           <div className="overflow-hidden">
             <table className="min-w-full">
-              <thead className="bg-white border-b">
+              <thead className="border-b">
                 <tr>
                   <th
                     scope="col"
-                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
                   >
                     #
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
                   >
-                    From
+                    FROM
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
                   >
-                    To
+                    TO
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
                   >
-                    Date
+                    DATE
                   </th>
                   <th
                     scope="col"
-                    className="text-sm font-medium text-gray-900 px-6 py-4 text-left"
+                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
                   >
-                    Price
+                    PRICE
                   </th>
                 </tr>
               </thead>
@@ -55,22 +56,25 @@ const TransactionsHistory: React.FC<TransactionsHistoryProps> = ({
                   {transactions &&
                     transactions?.map((item, i) => {
                       return (
-                        <tr key={i} className="bg-gray-100 border-b">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <tr key={i} className="">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100">
                             {i}
                           </td>
-                          <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                            {item.from}
+                          <td className="text-sm text-gray-100 font-light px-6 py-4 whitespace-nowrap">
+                            {addressSimplifier(item.from)}
                           </td>
-                          <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                            {item.to}
+                          <td className="text-sm text-gray-100 font-light px-6 py-4 whitespace-nowrap">
+                            {addressSimplifier(item.to)}
                           </td>
-                          <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                          <td className="text-sm text-gray-100 font-light px-6 py-4 whitespace-nowrap">
                             {item.date.toString()}
                           </td>
-                          <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
+                          <td className="text-sm text-gray-100 font-light px-6 py-4 whitespace-nowrap">
                             {item?.value &&
-                              ethers.utils.formatEther(item?.value).toString()}
+                              ethers.utils
+                                .formatEther(item?.value)
+                                .toString()}{' '}
+                            ETH
                           </td>
                         </tr>
                       )

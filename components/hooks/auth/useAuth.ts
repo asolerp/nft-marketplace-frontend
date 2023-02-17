@@ -36,7 +36,6 @@ export const hookFactory: AuthHookFactory = () => () => {
 
   useEffect(() => {
     if (data && user) {
-      console.log('user', user)
       dispatch({
         type: GlobalTypes.SET_USER,
         payload: { user: { ...user, address: data } },

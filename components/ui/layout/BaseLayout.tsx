@@ -8,9 +8,11 @@ interface Props {
 const BaseLayout: React.FC<Props> = ({ children }) => {
   return (
     <>
-      <Navbar />
-      <div className="bg-gray-50 overflow-hidden min-h-screen">
-        <div className="mx-auto space-y-8 ">{children}</div>
+      <div className="bg-gradient-to-r from-[#0B1626] via-[#0B1626] to-[#191825] overflow-hidden min-h-screen">
+        <div className=" bg-opacity-80 mx-auto  backdrop-blur-xl	">
+          <Navbar />
+          {children}
+        </div>
       </div>
     </>
   )

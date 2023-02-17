@@ -9,6 +9,7 @@ import {
   createDefaultState,
   createWeb3State,
   loadContract,
+  loadContractByAddress,
   Web3State,
 } from './utils'
 import { ethers } from 'ethers'
@@ -17,14 +18,26 @@ import { MetaMaskInpageProvider } from '@metamask/providers'
 import { CcNftContract } from '@_types/ccNftContract'
 import { NftVendorContract } from '@_types/nftVendorContract'
 import { NftOffersContract } from '@_types/nftOffersContract'
+import { useRouter } from 'next/router'
+import { useGlobal } from '@providers/global'
+import { GlobalTypes } from '@providers/global/utils'
+import axiosClient from 'lib/fetcher/axiosInstance'
+// import { NftFractionsVendorContract } from '@_types/nftFractionsVendorContract'
+import { NftFractionsFactoryContract } from '@_types/nftFractionsFactoryContract'
 
 const pageReload = () => {
+  console.log('hola')
   window.location.reload()
 }
 
-const setGlobalListeners = (ethereum: MetaMaskInpageProvider) => {
+const accountChanged = (logout: any) => {
+  logout()
+  window.location.reload()
+}
+
+const setGlobalListeners = (ethereum: MetaMaskInpageProvider, logout: any) => {
   ethereum.on('chainChanged', pageReload)
-  ethereum.on('accountsChnaged', pageReload)
+  ethereum.on('accountsChanged', () => accountChanged(logout))
   ethereum.on('disconnect', pageReload)
 }
 
@@ -41,10 +54,33 @@ interface Props {
 }
 
 const Web3Provider: React.FC<Props> = ({ children }) => {
+  const Router = useRouter()
+  const { dispatch } = useGlobal()
   const [web3Api, setWeb3Api] = useState<Web3State>(createDefaultState())
+
+  const logout = async () => {
+    console.log('Login out')
+    localStorage.removeItem('token')
+    localStorage.removeItem('refresh-token')
+    dispatch({
+      type: GlobalTypes.SET_TOKEN,
+      payload: { token: null },
+    })
+    dispatch({
+      type: GlobalTypes.SET_USER,
+      payload: { user: null },
+    })
+
+    const accounts = await web3Api.provider?.listAccounts()
+    const account = accounts?.[0]
+
+    await axiosClient.get(`/api/user/${account}/cleanTokens`)
+    Router.push('/')
+  }
 
   useEffect(() => {
     async function initWeb3() {
+      console.log('INIT WEB3')
       try {
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as any
@@ -53,26 +89,58 @@ const Web3Provider: React.FC<Props> = ({ children }) => {
         const nftVendor = await loadContract('NftVendor', provider)
         const nftOffers = await loadContract('NftOffers', provider)
 
-        // const VaultVendor = await loadContract('VaultVendor', provider)
-        // const VaultFactory = await loadContract('VaultFactory', provider)
+        const nftFractionsFactory = await loadContract(
+          'NftFractionsFactory',
+          provider
+        )
+        const nftFractionsVendor = await loadContract(
+          'NftFractionsVendor',
+          provider
+        )
+
+        const nftFactionToken = async (address: string) =>
+          await loadContractByAddress('NftFractionToken', provider, address)
 
         const signer = provider.getSigner()
 
         const sigendNftVendorContract = nftVendor.connect(signer)
         const signedCCNftContract = ccNft.connect(signer)
         const signedNftOffersContract = nftOffers.connect(signer)
+        const signednftFractionsVendor = nftFractionsVendor.connect(signer)
+        const signednftFractionsFactory = nftFractionsFactory.connect(signer)
+        const signedNftFractionToken = async (address: string) =>
+          (await nftFactionToken(address)).connect(signer)
 
-        // const signedVaultVendor = VaultVendor.connect(signer)
-        // const signedVaultFactory = VaultFactory.connect(signer)
+        console.log('SIGNED', signednftFractionsFactory)
 
-        setGlobalListeners(window.ethereum)
+        // const signedNftFractionToken = async (tokenAddress: string) => {
+        //   console.log('HOLA FROM SIGNED NFT FRACTION TOKEN')
+        //   const res = await fetch(`/contracts/NftFractionToken.json`)
+        //   const Contract = await res.json()
+
+        //   const TokenContract = new ethers.Contract(
+        //     tokenAddress,
+        //     Contract.abi,
+        //     provider
+        //   )
+
+        //   const _signedTokenContract = TokenContract.connect(signer)
+        //   console.log(_signedTokenContract, 'signedTokenContract')
+        //   return _signedTokenContract
+        // }
+
+        console.log('SIGNED', signedNftFractionToken)
+
+        setGlobalListeners(window.ethereum, logout)
         setWeb3Api(
           createWeb3State({
             ethereum: window.ethereum,
             provider,
             // erc20Contracts: { [usdtERC20.address]: sigendNftVendorContract },
-            // vaultVendor: signedVaultVendor as unknown as VaultVendorContract,
-            // vaultFactory: signedVaultFactory as unknown as VaultFactoryContract,
+            nftFractionToken: signedNftFractionToken,
+            nftFractionsVendor: signednftFractionsVendor as unknown as any,
+            nftFractionsFactory:
+              signednftFractionsFactory as unknown as NftFractionsFactoryContract,
             ccNft: signedCCNftContract as unknown as CcNftContract,
             nftVendor: sigendNftVendorContract as unknown as NftVendorContract,
             nftOffers: signedNftOffersContract as unknown as NftOffersContract,
