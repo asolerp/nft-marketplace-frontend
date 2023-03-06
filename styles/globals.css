@@ -1,6 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100&family=Raleway:wght@200;300;400;500;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: Gugi;
+    font-weight: 400;
+    src: url(/Gugi-Regular.woff) format('woff');
+  }
+  @font-face {
+    font-family: Raleway;
+    font-weight: 400;
+    src: url(/Raleway-Regular.woff) format('woff');
+  }
+  /* @font-face {
+    font-family: Poppins;
+    font-weight: 400;
+    src: url(/Poppins-Regular.woff) format('woff');
+  } */
+}
+
+body {
+  color: '#1B1B1B';
+}
+
+input:-webkit-autofill {
+  background-color: transparent !important;
+  -webkit-box-shadow: 0 0 0 50px white inset;
+}
 
 .horizontal-slider {
   position: relative;

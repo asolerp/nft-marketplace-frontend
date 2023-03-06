@@ -19,6 +19,8 @@ export const hookFactory: AuthHookFactory = () => () => {
   } = useAccount()
   const { dispatch } = useGlobal()
 
+  console.log('DATA', data)
+
   const { data: user } = useSWR(
     data ? `/api/user/${data.toLowerCase()}` : null,
     async (url: string) => {

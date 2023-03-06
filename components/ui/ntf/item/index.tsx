@@ -41,8 +41,6 @@ const NftItem: React.FC<NftItemProps> = ({
   // const [address, setAddress] = useState('')
   // const [offer, setOffer] = useState('')
 
-  console.log('ITEM', item)
-
   return (
     <>
       <div className="flex-shrink-0 relative h-52 flex justify-center items-center">

@@ -8,7 +8,7 @@ const NETWORKS: { [k: string]: string } = {
   5: 'Goerli Test Network',
   42: 'Kovan Test Network',
   56: 'Binance Smart Chain',
-  1337: 'Ganache',
+  4447: 'Ganache',
   80001: 'Matic Mumbai Testnet',
 }
 
@@ -29,6 +29,7 @@ export type UseNetworkHook = ReturnType<NetworkHookFactory>
 export const hookFactory: NetworkHookFactory =
   ({ provider, isLoading }) =>
   () => {
+    console.log('PROVIDER', provider)
     const { data, isValidating, ...swr } = useSWR(
       provider ? 'web3/useNetwork' : null,
       async () => {
@@ -37,6 +38,7 @@ export const hookFactory: NetworkHookFactory =
         if (!chainId) {
           throw 'Cannot retreive network. Please, refresh browser or connect to other one.'
         }
+        console.log('CHAIN ID', chainId)
         return NETWORKS[chainId]
       },
       {

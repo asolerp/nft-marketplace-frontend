@@ -15,8 +15,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 const navigation = [
+  { name: 'Home', href: '/' },
+  { name: 'Explore', href: '/explore' },
   { name: 'Marketplace', href: '/marketplace' },
-  { name: 'Exchange', href: '/exchange' },
+  { name: 'Stats', href: '/stats' },
   { name: 'About us', href: '/about' },
 ]
 
@@ -29,9 +31,16 @@ export default function Navbar() {
   const { account } = useAccount()
   const { network } = useNetwork()
   const {
+    state: { sideMenu },
+  } = useGlobal()
+  const {
     state: { userInfoModal, signInModal, token, user },
     dispatch,
   } = useGlobal()
+
+  const sideMenuActiveClass = sideMenu
+    ? 'bg-blackLight bg-opacity-80'
+    : 'border-0'
 
   return (
     <>
@@ -56,52 +65,64 @@ export default function Navbar() {
       <Disclosure as="nav">
         {({ open }) => (
           <>
-            <div className="absolute z-50 mx-auto w-full px-2 sm:px-6 lg:px-8">
+            <div
+              className={`absolute top-0 z-50 mx-auto w-full px-3 lg:px-40 transition-color duration-700 ${sideMenuActiveClass}`}
+            >
               <div className="relative bg-transparent flex h-24 items-center justify-between">
-                <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                  {/* Mobile menu button*/}
-                  <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                    <span className="sr-only">Open main menu</span>
-                    {open ? (
-                      <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                    ) : (
-                      <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                    )}
-                  </Disclosure.Button>
-                </div>
                 <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                   <div className="flex flex-1 items-center">
                     <Link href={`/`}>
                       <div className="flex flex-row space-x-3 items-center">
-                        <p className=" text-4xl font-bold text-white text-opacity-90">
-                          CaskChain
-                        </p>
+                        <Image
+                          src="/images/logo_cask_chain.svg"
+                          alt="logo caskchain"
+                          className="w-40 lg:w-40"
+                          width={205}
+                          height={74}
+                        />
                       </div>
                     </Link>
                   </div>
-                  <div className="flex flex-grow space-x-3 justify-center items-center">
-                    {navigation.map((item) => (
+                  <div className="absolute inset-y-0 right-0 flex items-center sm:hidden">
+                    {/* Mobile menu button*/}
+                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-100 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                      <span className="sr-only">Open main menu</span>
+                      {open ? (
+                        <XMarkIcon
+                          className="block h-6 w-6"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Bars3Icon
+                          className="block h-10 w-10"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </Disclosure.Button>
+                  </div>
+                  <div className="md:flex flex-grow space-x-6 justify-center items-center hidden">
+                    {navigation.map((item: any) => (
                       <ActiveLink
-                        activeclass="bg-amber-300 text-slate-700"
+                        activeclass="border-b-4 border-b-caskchain bg-transparent text-caskchain"
                         key={item.name}
                         href={item.href}
                       >
                         <span
                           className={
-                            'text-white hover:bg-gray-700 hover:text-white px-3 py-3 rounded-full text-sm font-semibold'
+                            'text-white hover:text-caskchain px-2 py-5 text-md '
                           }
-                          aria-current={item.current ? 'page' : undefined}
+                          aria-current={item?.current ? 'page' : undefined}
                         >
-                          {item.name.toUpperCase()}
+                          {item.name}
                         </span>
                       </ActiveLink>
                     ))}
                   </div>
-                  <div className="flex flex-1 justify-end items-center pr-2 sm:static sm:inset-auto sm:pr-0">
+                  <div className="md:flex flex-1 justify-end items-center pr-2 sm:static sm:inset-auto sm:pr-0 hidden">
                     <div className="text-gray-200 self-center mr-2">
-                      <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-slate-700 text-white">
+                      <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium ring-caskchain ring-2 text-caskchain shadow-lg">
                         <svg
-                          className="-ml-0.5 mr-1.5 h-2 w-2 text-amber-300"
+                          className="-ml-0.5 mr-1.5 h-2 w-2 text-caskchain"
                           fill="currentColor"
                           viewBox="0 0 8 8"
                         >
@@ -119,6 +140,8 @@ export default function Navbar() {
                       user={user}
                       isInstalled={account.isInstalled}
                       isLoading={account.isLoading}
+                      balance={account.balance}
+                      erc20Balances={account.erc20balances}
                       account={account?.data as string}
                       connect={account.connect}
                       logout={account.logout}
@@ -130,18 +153,18 @@ export default function Navbar() {
 
             <Disclosure.Panel className="sm:hidden">
               <div className="space-y-1 px-2 pt-2 pb-3">
-                {navigation.map((item) => (
+                {navigation.map((item: any) => (
                   <Disclosure.Button
-                    key={item.name}
+                    key={item?.name}
                     as="a"
-                    href={item.href}
+                    href={item?.href}
                     className={classNames(
-                      item.current
+                      item?.current
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                       'block px-3 py-2 rounded-md text-base font-medium'
                     )}
-                    aria-current={item.current ? 'page' : undefined}
+                    aria-current={item?.current ? 'page' : undefined}
                   >
                     {item.name}
                   </Disclosure.Button>

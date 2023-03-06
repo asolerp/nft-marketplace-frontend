@@ -18,19 +18,19 @@ const FractionHolders: React.FC<Props> = ({ holders }) => {
                 <tr>
                   <th
                     scope="col"
-                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
+                    className="text-lg font-medium text-caskchain px-6 py-4 text-left"
                   >
                     #
                   </th>
                   <th
                     scope="col"
-                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
+                    className="text-lg font-medium text-caskchain px-6 py-4 text-left"
                   >
                     ADDRESS
                   </th>
                   <th
                     scope="col"
-                    className="text-lg font-medium text-amber-300 px-6 py-4 text-left"
+                    className="text-lg font-medium text-caskchain px-6 py-4 text-left"
                   >
                     BALANCE
                   </th>

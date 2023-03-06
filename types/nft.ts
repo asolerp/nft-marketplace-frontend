@@ -5,6 +5,11 @@ export type NftAttribute = {
   value: string
 }
 
+export type NameProps = {
+  nickname: string
+  address: string
+}
+
 export type NftMeta = {
   name: string
   description: string
@@ -17,7 +22,7 @@ export type NftCore = {
   tokenId: number
   price?: number
   creator: string
-  owner: string
+  owner: NameProps
   shares?: number
   totalShares?: number
 }

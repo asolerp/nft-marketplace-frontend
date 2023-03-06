@@ -2,7 +2,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CryptoHookFactory } from '@_types/hooks'
 import { Nft } from '@_types/nft'
-import axios from 'axios'
+
+import axiosClient from 'lib/fetcher/axiosInstance'
 
 import useSWR from 'swr'
 
@@ -20,7 +21,7 @@ export const hookFactory: AllNftsHookFactory =
   ({}) =>
   () => {
     const { data, ...swr } = useSWR('web3/useAllNfts', async () => {
-      const nfts: any = await axios.get('/api/casks')
+      const nfts: any = await axiosClient.get('/api/casks')
       return nfts.data
     })
 

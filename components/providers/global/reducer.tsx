@@ -31,6 +31,24 @@ export const globalReducer = (
         token: action.payload.token,
       }
 
+    case GlobalTypes.SET_PROVIDER:
+      return {
+        ...state,
+        library: action.payload.library,
+      }
+
+    case GlobalTypes.SET_TOKEN:
+      return {
+        ...state,
+        token: action.payload.token,
+      }
+
+    case GlobalTypes.SET_SIDE_MENU:
+      return {
+        ...state,
+        sideMenu: action.payload.state,
+      }
+
     default:
       return state
   }

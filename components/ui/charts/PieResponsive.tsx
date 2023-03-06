@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts'
 import { addressSimplifier } from 'utils/addressSimplifier'
 
@@ -70,7 +70,7 @@ const renderActiveShape = (props: any) => {
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
         textAnchor={textAnchor}
-        fill="#fcd34d"
+        fill="#46D399"
       >{`F ${value.toFixed(2)}`}</text>
     </g>
   )
@@ -97,7 +97,7 @@ const PieResponsive: React.FC<Props> = ({ data = dataDefault }) => {
             cy={200}
             innerRadius={100}
             outerRadius={120}
-            fill="#fcd34d"
+            fill="#46D399"
             dataKey="value"
             onMouseEnter={onPieEnter}
           />

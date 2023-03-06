@@ -1,17 +1,22 @@
+import Sidebar from '@ui/navbar/Sidebar'
 import { ReactNode } from 'react'
 import Navbar from '../navbar'
 
 interface Props {
+  background?: string
   children: ReactNode
 }
 
-const BaseLayout: React.FC<Props> = ({ children }) => {
+const BaseLayout: React.FC<Props> = ({ background = 'bg-white', children }) => {
   return (
     <>
-      <div className="bg-gradient-to-r from-[#0B1626] via-[#0B1626] to-[#191825] overflow-hidden min-h-screen">
-        <div className=" bg-opacity-80 mx-auto  backdrop-blur-xl	">
+      <div
+        className={`${background} flex flex-row overflow-hidden min-h-screen`}
+      >
+        <div className="bg-opacity-80 w-full backdrop-blur-xl">
           <Navbar />
           {children}
+          <Sidebar />
         </div>
       </div>
     </>

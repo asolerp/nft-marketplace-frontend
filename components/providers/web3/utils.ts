@@ -4,6 +4,9 @@ import { Web3Dependencies } from '@_types/hooks'
 import { Contract, ethers, providers } from 'ethers'
 
 declare global {
+  interface ProcessEnv {
+    NEXT_PUBLIC_NETWORK_ID: string
+  }
   interface Window {
     ethereum: MetaMaskInpageProvider
   }
@@ -88,11 +91,29 @@ export const loadContractByAddress = async (
     return Promise.reject('Network ID is not defined!')
   }
 
-  const res = await fetch(`/contracts/${name}.json`)
-  const Artifact = await res.json()
+  const Artifact = (await import(
+    `../../../../ethereum/build/contracts/${name}.json`
+  )) as any
 
   if (address) {
     const contract = new ethers.Contract(address, Artifact.abi, provider)
+    return contract
+  } else {
+    return Promise.reject(`Contract ${name} cannot be loaded`)
+  }
+}
+
+export const loadExternalContract = async (
+  address: string,
+  abi: any,
+  provider: providers.Web3Provider
+) => {
+  if (!NETWORK_ID) {
+    return Promise.reject('Network ID is not defined!')
+  }
+
+  if (address) {
+    const contract = new ethers.Contract(address, abi, provider)
     return contract
   } else {
     return Promise.reject(`Contract ${name} cannot be loaded`)
@@ -107,8 +128,9 @@ export const loadContract = async (
     return Promise.reject('Network ID is not defined!')
   }
 
-  const res = await fetch(`/contracts/${name}.json`)
-  const Artifact = await res.json()
+  const Artifact = (await import(
+    `../../../../ethereum/build/contracts/${name}.json`
+  )) as any
 
   if (Artifact.networks[NETWORK_ID].address) {
     const contract = new ethers.Contract(

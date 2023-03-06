@@ -58,7 +58,7 @@ const withAuth = (WrappedComponent: React.FC) => {
                 const res = await axiosClient.post('/api/user/refresh', {
                   token: refreshToken,
                 })
-                console.log('REFRESH RES', res)
+
                 if (res) {
                   setVerified(true)
                   localStorage.setItem('token', res.data.token)

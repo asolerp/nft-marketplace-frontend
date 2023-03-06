@@ -28,15 +28,15 @@ const FractionalizedBuyout: React.FC<Props> = ({
         </h1>
         <div className="flex flex-col space-y-2 mb-4">
           <div>
-            <p className="text-amber-300">SOLD BY</p>
+            <p className="text-caskchain">SOLD BY</p>
             <p className="text-gray-300">CASK CHAIN</p>
           </div>
           <div>
-            <p className="text-amber-300">TOTAL FRACTIONS</p>
+            <p className="text-caskchain">TOTAL FRACTIONS</p>
             <p className="text-gray-300">{cask?.fractions?.total}</p>
           </div>
           <div>
-            <p className="text-amber-300">AVAILABLE FRACTIONS</p>
+            <p className="text-caskchain">AVAILABLE FRACTIONS</p>
             <p className="text-gray-300">
               {cask?.fractions?.available?.toFixed(2)}
             </p>
@@ -47,7 +47,7 @@ const FractionalizedBuyout: React.FC<Props> = ({
         <>
           <div className="flex items-center py-3">
             <div className="w-full">
-              <p className="text-amber-300">NUMBER OF FRACTIONS</p>
+              <p className="text-caskchain">NUMBER OF FRACTIONS</p>
               <input
                 min={1}
                 max={cask?.fractions?.available}
@@ -69,7 +69,7 @@ const FractionalizedBuyout: React.FC<Props> = ({
             </button>
             <button
               onClick={() => onBuyFraction(fractions)}
-              className="bg-emerald-400 hover:bg-emerald-700 text-gray-100 text-xl font-bold py-4 px-4 rounded w-full"
+              className="bg-caskchain hover:bg-emerald-700 text-gray-100 text-xl font-bold py-4 px-4 rounded w-full"
             >
               BUY FRACTIONS BY ~{' '}
               {(

@@ -1,6 +1,8 @@
 import axios, { HeadersDefaults } from 'axios'
 
-const axiosClient: any = axios.create()
+const axiosClient: any = axios.create({
+  baseURL: 'http://localhost:4000/',
+})
 
 // Replace this with our own backend base URL
 

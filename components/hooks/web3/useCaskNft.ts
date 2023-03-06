@@ -17,7 +17,13 @@ type CaskNftHookFactory = CryptoHookFactory<Nft[]>
 export type UseCaskNftsHook = ReturnType<CaskNftHookFactory>
 
 export const hookFactory: CaskNftHookFactory =
-  ({ nftOffers, nftVendor, nftFractionsVendor, nftFractionToken }) =>
+  ({
+    nftOffers,
+    nftVendor,
+    nftFractionsVendor,
+    nftFractionToken,
+    erc20Contracts,
+  }) =>
   ({ caskId }) => {
     const [tokenAmmount, setTokenAmmount] = useState<number | undefined>(0)
 
@@ -101,6 +107,44 @@ export const hookFactory: CaskNftHookFactory =
         }
       },
       [_nftVendor, handleUserState, isUserNeededDataFilled]
+    )
+
+    const buyNftWithERC20 = useCallback(
+      async (tokenId: number, erc20Token: string, price: number) => {
+        try {
+          const _erc20Contract = erc20Contracts[erc20Token]
+          console.log(price.toString(), 'PRICE')
+          await _erc20Contract
+            .approve(_nftVendor?.address, price.toString())
+            .then(async () => {
+              const result = await _nftVendor?.buyNFTWithERC20(
+                tokenId,
+                erc20Token
+              )
+              await toast.promise(result!.wait(), {
+                pending: 'Processing transaction',
+                success: 'Nft is yours! Go to Profile page',
+                error: 'Processing error',
+              })
+            })
+          // await _erc20Contract.transfer(contractAddress, String(erc20Price))
+        } catch (e: any) {
+          if (e.code === -32603) {
+            toast.error('🏦 Insufficient funds', {
+              position: 'top-right',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: 'light',
+            })
+          }
+          console.error(e.message)
+        }
+      },
+      [_nftVendor]
     )
 
     const buyFractionizedNft = useCallback(async () => {
@@ -204,6 +248,7 @@ export const hookFactory: CaskNftHookFactory =
       tokenAmmount,
       hasFractions,
       setTokenAmmount,
+      buyNftWithERC20,
       hasOffersFromUser,
       buyFractionizedNft,
     }

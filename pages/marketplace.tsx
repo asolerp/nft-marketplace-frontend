@@ -1,11 +1,12 @@
 import { useAllNfts } from '@hooks/web3'
 import { BaseLayout } from '@ui'
 import Filter from '@ui/common/Filter'
-import GeneralNftInfo from '@ui/ntf/item/GeneralNftInfo'
+import BarrelNft from '@ui/ntf/item/BarrelNft'
 import { Nft } from '@_types/nft'
 import { NextPage } from 'next'
 import Link from 'next/link'
 import { useState } from 'react'
+import { addressSimplifier } from 'utils/addressSimplifier'
 
 const NFTCaskWorld: NextPage = () => {
   const { nfts } = useAllNfts()
@@ -16,7 +17,7 @@ const NFTCaskWorld: NextPage = () => {
       return true
     }
     if (filter === 'onSale') {
-      return nft?.price > 0
+      return nft?.price ? nft?.price > 0 : false
     }
     if (filter === 'fractionized') {
       return nft?.fractions?.total > 0
@@ -24,10 +25,10 @@ const NFTCaskWorld: NextPage = () => {
   })
 
   return (
-    <BaseLayout>
-      <div className="py-16 sm:px-6 pt-40 lg:px-8 px-4">
-        <h2 className="tracking-tight font-extrabold text-gray-100 sm:text-8xl">
-          MARKETPLACE
+    <BaseLayout background="bg-blackLight">
+      <div className="w-full py-16 sm:px-6 pt-40 lg:px-40 px-4">
+        <h2 className="tracking-tight font-extrabold text-gray-100 sm:text-8xl font-raleway">
+          Marketplace
         </h2>
         <div className="flex flex-row space-x-6 mt-14">
           <Filter
@@ -46,11 +47,18 @@ const NFTCaskWorld: NextPage = () => {
             onPress={() => setFilter('fractionized')}
           />
         </div>
-        <div className="mx-auto mt-10">
+        <div className="mx-auto mt-20">
           <div className="flex flex-row space-x-6 flex-wrap mx-auto lg:max-w-none">
             {filteredNfts?.map((nft: Nft) => (
               <Link key={nft.tokenId} href={`/cask/${nft.tokenId}`}>
-                <GeneralNftInfo isMarketPlace item={nft} blow />
+                <BarrelNft
+                  title={nft.meta.name}
+                  caskNumber={25}
+                  owner={
+                    nft.owner.nickname || addressSimplifier(nft.owner.address)
+                  }
+                  meta={nft.meta}
+                />
               </Link>
             ))}
           </div>

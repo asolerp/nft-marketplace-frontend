@@ -11,6 +11,14 @@ type UseOwnedNftsResponse = {
   // listNft: (tokenId: number, price: number) => Promise<void>
 }
 
+const NETWORKS = {
+  '4447': 'Ganache',
+}
+
+type NETWORK = typeof NETWORKS
+
+const NETWORK_ID = process.env.NEXT_PUBLIC_NETWORK_ID as keyof NETWORK
+
 type OwnedNftsHookFactory = CryptoHookFactory<UseOwnedNftsResponse>
 export type UseOwnedNftsHook = ReturnType<OwnedNftsHookFactory>
 
@@ -97,19 +105,14 @@ export const hookFactory: OwnedNftsHookFactory =
 
     const acceptOffer = async (tokenId: string) => {
       try {
-        await _ccNft
-          ?.approve(
-            process.env.NEXT_PUBLIC_NFT_OFFERS_ADDRESS as string,
-            tokenId
-          )
-          .then(async () => {
-            const result = await nftOffers?.acceptOffer(tokenId)
-            await toast.promise(result!.wait(), {
-              pending: 'Processing transaction',
-              success: 'The sell was approved',
-              error: 'Processing error',
-            })
+        await _ccNft?.approve(nftOffers.address, tokenId).then(async () => {
+          const result = await nftOffers?.acceptOffer(tokenId)
+          await toast.promise(result!.wait(), {
+            pending: 'Processing transaction',
+            success: 'The sell was approved',
+            error: 'Processing error',
           })
+        })
       } catch (e: any) {
         console.log(e)
       }
@@ -118,9 +121,11 @@ export const hookFactory: OwnedNftsHookFactory =
     const approveSell = async (tokenId: number) => {
       try {
         const gasPrice = await provider?.getGasPrice()
-
+        const NftVendor = await import(
+          `../../../../ethereum/build/contracts/NftVendor.json`
+        )
         const result = await _ccNft?.approve(
-          process.env.NEXT_PUBLIC_NFT_VENDOR_ADDRESS as string,
+          NftVendor.networks[NETWORK_ID].address as string,
           tokenId,
           {
             gasPrice,
@@ -134,7 +139,7 @@ export const hookFactory: OwnedNftsHookFactory =
           error: 'Processing error',
         })
         const txStatus = await result?.wait()
-        console.log(txStatus, 'STATUS')
+
         if (txStatus?.status === 1) {
           setIsApproved(true)
         }

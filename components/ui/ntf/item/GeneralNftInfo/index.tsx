@@ -23,39 +23,36 @@ const GeneralNftInfo: React.FC<NftItemProps> = ({
       onMouseLeave={() => setIsHover(false)}
     >
       {(isHover || blow) && (
-        <div className="absolute w-80 h-full -inset-0.5 bg-cyan-300 rounded-md blur-lg"></div>
+        <div className="absolute w-80 h-full -inset-0.5 bg-[#A7FF99] rounded-lg blur-sm"></div>
       )}
-      <div className="relative p-2 h-full w-80 bg-[#243267] rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-90 border-[4px] border-cyan-300">
-        <div className="border-[2px] border-cyan-300 border-opacity-30 rounded-md p-2 shadow-xl">
-          <div className="flex-shrink-0 relative h-52 flex justify-center items-center   rounded-md">
+      <div className="relative p-2 h-full w-80 bg-blackLight rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-90 border-[4px] border-[#374F29]">
+        <div className="relative">
+          <div className="w-full mb-3">
+            <h3 className="text-2xl text-center font-semibold text-gray-100 mt-1">
+              {item.meta.name}
+            </h3>
+          </div>
+          <div className="flex justify-center items-center rounded-md">
             <Image
-              className={`absolute  mb-6 object-contain flex justify-center items-center z-10 `}
-              src={'/images/cask_2.png'}
+              className={`w-full object-contain `}
+              src={'/images/suau_1.png'}
               alt="New NFT"
-              width={170}
-              height={100}
+              width={300}
+              height={0}
             />
           </div>
         </div>
-        <div className="flex-1 p-6 mt-2 flex flex-col justify-between bg-slate-900 rounded-md bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-50">
+        <div className="flex-1 p-6 mt-2 flex flex-col justify-between ">
           <div className="flex-1">
-            <div className="block mt-2">
-              <p className="text-xl font-semibold text-gray-100">
-                {item.meta.name}
-              </p>
-              <p className="text-xs text-left font-semibold text-gray-400 mt-3">
-                {item.meta.description}
-              </p>
-            </div>
-            <div className="mt-5">
-              <div className="grid grid-cols-2 gap-1">
+            <div className="mt-4 pb-5">
+              <div className="grid grid-cols-1 gap-2">
                 {item.meta.attributes.map((attribute) => (
                   <div key={attribute.trait_type} className="">
-                    <div>
-                      <dt className=" text-sm font-medium text-gray-500">
-                        {attribute.trait_type}
+                    <div className="flex flex-row justify-between">
+                      <dt className=" text-sm font-medium text-gray-300">
+                        {attribute.trait_type.toUpperCase()}
                       </dt>
-                      <dd className="text-xs font-extrabold text-amber-200">
+                      <dd className="text-sm font-extrabold text-gray-100">
                         {attribute.value}
                       </dd>
                     </div>
@@ -67,7 +64,7 @@ const GeneralNftInfo: React.FC<NftItemProps> = ({
         </div>
         {!isMarketPlace && (
           <div className="mt-3">
-            <button className="bg-emerald-400 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded w-full">
+            <button className="bg-caskchain hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded w-full">
               Buy for {ethers.utils.formatEther(Number(item.price).toString())}{' '}
               ETH
             </button>
